@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>書籍購物網站</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css"
+        rel="stylesheet">
+    <!-- 自定義CSS -->
+    <style>
+        /* 導航欄樣式 */
+        .navbar {
+            background-color: #4b49ac !important;
+        }
+
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+        }
+
+
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            padding: 2px 5px;
+            border-radius: 50%;
+            background: #dc3545;
+            color: white;
+            font-size: 12px;
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-link {
+            color: white !important;
+            margin-left: 15px;
+        }
+
+        /* 下拉選單樣式 */
+        .dropdown-menu {
+            background-color: white;
+            border: 1px solid rgba(0, 0, 0, .15);
+        }
+
+        .dropdown-item {
+            color: #212529;
+            padding: 8px 20px;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* 左側選單樣式 */
+        .sidebar {
+            background-color: #f8f9fa;
+            min-height: calc(100vh - 56px);
+            padding: 20px;
+            border-right: 1px solid #dee2e6;
+        }
+
+        .sidebar .nav-link {
+            color: white !important;
+            /* 白色文字 */
+            padding: 8px 16px;
+            margin: 4px 0;
+            border-radius: 4px;
+            background-color: #4b49ac;
+            /* 藍色背景 */
+        }
+
+        .sidebar .nav-link:hover {
+            background-color: #3f3e8f;
+            /* 滑鼠移過時的深藍色 */
+        }
+
+        /* 表格相關樣式 */
+        .table {
+            font-size: 0.9rem;
+        }
+
+        .table td {
+            vertical-align: middle;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* 表格捲動相關樣式 */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* 固定左側欄位 */
+        .sticky-col {
+            position: sticky;
+            left: 0;
+            background: white;
+            z-index: 1;
+        }
+
+        /* 固定右側操作欄位 */
+        .sticky-col-right {
+            position: sticky;
+            right: 0;
+            background: white;
+            z-index: 1;
+        }
+
+        /* 陰影效果 */
+        .sticky-col::after,
+        .sticky-col-right::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            height: 100%;
+            width: 10px;
+            pointer-events: none;
+        }
+
+        .sticky-col::after {
+            right: -10px;
+            background: linear-gradient(to right, rgba(0, 0, 0, 0.1), transparent);
+        }
+
+        .sticky-col-right::before {
+            left: -10px;
+            background: linear-gradient(to left, rgba(0, 0, 0, 0.1), transparent);
+        }
+
+        /* RWD 響應式設計 */
+        @media (max-width: 768px) {
+            .navbar-nav {
+                margin-top: 10px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .table {
+                font-size: 0.8rem;
+            }
+
+            .table td {
+                max-width: 150px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 導航欄 -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <!-- Logo -->
+            <a class="navbar-brand" href="./index.html">
+                <i class="bi bi-book"></i> Book Cart
+            </a>
+
+            <!-- 漢堡選單按鈕 -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- 導航內容 -->
+            <div class="collapse navbar-collapse" id="navbarContent">
+
+
+                <!-- 右側選單 -->
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="./shopping-cart.html">
+                            <i class="bi bi-cart3 fs-5"></i>
+                            <span class="cart-badge">0</span>
+                        </a>
+                    </li>
+                    <!-- 登入/使用者選單 -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link" href="./login.html" id="loginLink">
+                            Login
+                        </a>
+                        <!-- 下拉選單 (預設隱藏) -->
+                        <a class="nav-link dropdown-toggle d-none" href="#" id="userMenu" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <span id="userDisplayName"></span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                            <li><a class="dropdown-item" href="#" id="logoutBtn">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要內容區域 -->
+    <div class="container">
+        <!-- 在這裡添加頁面內容 -->
+        <div class="row">
+            <!-- 左側功能選單 -->
+            <div class="col-md-3 col-lg-2 sidebar">
+                <h5 class="mb-3">功能選單</h5>
+                <nav class="nav flex-column">
+                    <a class="nav-link active" href="#"><i class="bi bi-speedometer2"></i> 儀表板</a>
+                    <a class="nav-link" href="./productcategory-manage.html"><i class="bi bi-people"></i> 商品類別管理</a>
+                    <a class="nav-link" href="#"><i class="bi bi-box"></i> 商品管理</a>
+                    <a class="nav-link" href="#"><i class="bi bi-cart"></i> 訂單管理</a>
+                    <a class="nav-link" href="#"><i class="bi bi-gear"></i> 系統設定</a>
+                </nav>
+            </div>
+            <!-- 右側主要功能區 -->
+            <div class="col-md-9 col-lg-10">
+                <!-- 搜尋區塊 -->
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <div class="row g-3 align-items-center">
+                            <div class="col-md-3">
+                                <label class="form-label">會員名稱</label>
+                                <input type="text" class="form-control" id="memberNameSearch" placeholder="輸入會員名稱...">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">會員電話</label>
+                                <input type="text" class="form-control" id="memberPhoneSearch" placeholder="輸入電話...">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Email</label>
+                                <input type="text" class="form-control" id="memberEmailSearch" placeholder="輸入Email...">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">地址</label>
+                                <input type="text" class="form-control" id="memberAddressSearch" placeholder="輸入地址...">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">會員狀態</label>
+                                <select class="form-select" id="memberStatusSearch">
+                                    <option value="">全部</option>
+                                    <option value="1">啟用</option>
+                                    <option value="0">停用</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">註冊時間起</label>
+                                <input type="date" class="form-control" id="createTimeStart" min="2000-01-01"
+                                    max="2099-12-31">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">註冊時間迄</label>
+                                <input type="date" class="form-control" id="createTimeEnd" min="2000-01-01"
+                                    max="2099-12-31">
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <button class="btn btn-primary w-100" id="searchBtn">
+                                    <i class="bi bi-search"></i> 搜尋
+                                </button>
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <button class="btn btn-secondary w-100" id="resetBtn">
+                                    <i class="bi bi-arrow-counterclockwise"></i> 重置
+                                </button>
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <button class="btn btn-success w-100" id="addMemberBtn"
+                                    onclick="window.location.href='./member-create.html'">
+                                    <i class="bi bi-plus-circle"></i> 新增會員
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 會員列表 -->
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th class="sticky-col">照片</th>
+                                        <th class="sticky-col">會員編號</th>
+                                        <th>會員名稱</th>
+                                        <th>帳號</th>
+                                        <th>身分證字號</th>
+                                        <th>Email</th>
+                                        <th>電話</th>
+                                        <th>郵遞區號</th>
+                                        <th>地址</th>
+                                        <th>信用卡號</th>
+                                        <th>信用卡有效年</th>
+                                        <th>信用卡有效月</th>
+                                        <th>發卡銀行代號</th>
+                                        <th>註冊時間</th>
+                                        <th>註冊序號</th>
+                                        <th>狀態</th>
+                                        <th class="sticky-col-right">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="memberTableBody">
+                                    <!-- 會員資料將由 JavaScript 動態生成 -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- 不需要分頁，故移除分頁相關 UI -->
+                        <div class="mt-2">
+                            <span class="text-muted" id="totalRecords"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <!-- 後台頁面管制用 -->
+    <!-- <script src="/js/authHandler.js"></script> -->
+    <!-- JavaScript -->
+    <script>
+        // 會員資料渲染函數
+        function renderMemberRow(member) {
+            // 日期格式化函數
+            function formatDate(dateStr) {
+                if (!dateStr) return '-';
+                const date = new Date(dateStr);
+                if (isNaN(date.getTime())) return dateStr; // 如果轉換失敗，回傳原始字串
+
+                // 格式化為 YYYY-MM-DD 格式
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+
+            return `
+    <tr>
+        <td>
+            <img src="http://localhost:8080/api/members/${member.memberNo}/photo" 
+                 alt="會員照片"
+                 class="rounded-circle"
+                 width="50" height="50"
+                 onerror="this.src='https://via.placeholder.com/50'">
+        </td>
+        <td>${member.memberNo || '-'}</td>
+        <td>${member.memberName || '-'}</td>
+        <td>${member.memberAccount || '-'}</td>
+        <td>${member.memberId || '-'}</td>
+        <td>${member.memberEmail || '-'}</td>
+        <td>${member.memberPhone || '-'}</td>
+        <td>${member.memberZip || '-'}</td>
+        <td>${member.memberAddress || '-'}</td>
+        <td>${member.cardNo ? '****' + member.cardNo.slice(-4) : '-'}</td>
+        <td>${member.cardYy || '-'}</td>
+        <td>${member.cardMm || '-'}</td>
+        <td>${member.cardId || '-'}</td>
+        <td>${formatDate(member.createTime)}</td>
+        <td>${member.memberRegid || '-'}</td>
+        <td>
+            <span class="badge ${member.memberStatus === 0 ? 'bg-danger' : 'bg-success'}">
+                ${member.memberStatus === 0 ? '停用' : '啟用'}
+            </span>
+        </td>
+        <td>
+            <button class="btn btn-sm btn-primary me-1" onclick="editMember(${member.memberNo})">
+                <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="deleteMember(${member.memberNo})">
+                <i class="bi bi-trash"></i>
+            </button>
+        </td>
+    </tr>
+    `;
+        }
+
+        // 載入「全部」會員資料
+        function loadAllMembers() {
+            fetch('http://localhost:8080/api/members')  // 取得所有會員，不分頁
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('載入會員資料失敗');
+                    }
+                    return response.json(); // List<MemberDTO>
+                })
+                .then(members => {
+                    // 渲染表格
+                    const tableBody = $('#memberTableBody');
+                    tableBody.empty();
+
+                    if (!members || members.length === 0) {
+                        tableBody.append('<tr><td colspan="17" class="text-center">目前沒有任何會員</td></tr>');
+                        $('#totalRecords').text('共 0 筆');
+                        return;
+                    }
+
+                    members.forEach(member => {
+                        tableBody.append(renderMemberRow(member));
+                    });
+
+                    $('#totalRecords').text(`共 ${members.length} 筆`);
+                })
+                .catch(error => {
+                    console.error('載入會員資料失敗:', error);
+                    alert('載入會員資料失敗，請稍後再試');
+                });
+        }
+
+        // 搜尋功能
+        function searchMembers() {
+            // 取得搜尋條件
+            const searchParams = new URLSearchParams();
+
+            // 取得各個搜尋欄位的值
+            const memberName = $('#memberNameSearch').val().trim();
+            const memberPhone = $('#memberPhoneSearch').val().trim();
+            const memberEmail = $('#memberEmailSearch').val().trim();
+            const memberAddress = $('#memberAddressSearch').val().trim();
+            const memberStatus = $('#memberStatusSearch').val();
+            const createTimeStart = $('#createTimeStart').val();
+            const createTimeEnd = $('#createTimeEnd').val();
+
+            // 驗證日期範圍
+            if (createTimeStart && createTimeEnd && createTimeStart > createTimeEnd) {
+                alert('起始日期不能大於結束日期');
+                return;
+            }
+
+            // 加入搜尋條件
+            if (memberName) searchParams.append('memberName', memberName);
+            if (memberPhone) searchParams.append('memberPhone', memberPhone);
+            if (memberEmail) searchParams.append('memberEmail', memberEmail);
+            if (memberAddress) searchParams.append('memberAddress', memberAddress);
+            if (memberStatus) searchParams.append('memberStatus', memberStatus);
+            if (createTimeStart) searchParams.append('createTimeStart', createTimeStart);
+            if (createTimeEnd) searchParams.append('createTimeEnd', createTimeEnd);
+
+            // 日期處理
+            if (createTimeStart) searchParams.append('createTimeStart', createTimeStart);
+            if (createTimeEnd) searchParams.append('createTimeEnd', createTimeEnd);
+
+            // 組合API URL
+            const url = `http://localhost:8080/api/members/search?${searchParams.toString()}`;
+            console.log('搜尋 URL:', url); // 加入此行來檢查生成的 URL
+
+            // 呼叫搜尋API
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('搜尋失敗');
+                    }
+                    return response.json();
+                })
+                .then(members => {
+                    const tableBody = $('#memberTableBody');
+                    tableBody.empty();
+
+                    if (!members || members.length === 0) {
+                        tableBody.append('<tr><td colspan="17" class="text-center">查無符合條件的會員</td></tr>');
+                        $('#totalRecords').text('共 0 筆');
+                        return;
+                    }
+
+                    members.forEach(member => {
+                        tableBody.append(renderMemberRow(member));
+                    });
+                    $('#totalRecords').text(`共 ${members.length} 筆`);
+                })
+                .catch(error => {
+                    console.error('搜尋會員失敗:', error);
+                    alert('搜尋會員失敗，請稍後再試');
+                });
+        }
+
+        // 重置搜尋條件
+        function resetSearch() {
+            $('#memberNameSearch').val('');
+            $('#memberPhoneSearch').val('');
+            $('#memberEmailSearch').val('');
+            $('#memberAddressSearch').val('');
+            $('#memberStatusSearch').val('');
+            $('#createTimeStart').val('');
+            $('#createTimeEnd').val('');
+
+            // 重新載入所有會員資料
+            loadAllMembers();
+        }
+
+        // 修改會員函數（展示用）
+        function editMember(memberNo) {
+            window.location.href = `./member-update.html?memberNo=${memberNo}`;
+        }
+
+        // 刪除會員函數（展示用）
+        function deleteMember(memberNo) {
+            // 顯示確認對話框
+            if (confirm('確定要刪除此會員嗎？此操作無法復原。')) {
+                // 呼叫刪除 API
+                fetch(`http://localhost:8080/api/members/${memberNo}`, {
+                    method: 'DELETE'
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('刪除失敗');
+                        }
+                        // 刪除成功後重新載入會員列表
+                        alert('會員已成功刪除');
+                        loadAllMembers();
+                    })
+                    .catch(error => {
+                        console.error('刪除會員失敗:', error);
+                        alert('刪除會員失敗，請稍後再試');
+                    });
+            }
+        }
+
+        // 頁面載入完成後執行
+        $(document).ready(function () {
+            // 登入狀態檢查（可自行保留或修改）
+            function checkLoginStatus() {
+                const userStr = localStorage.getItem('user');
+                const user = userStr ? JSON.parse(userStr) : null;
+                if (user && user.memberName) {
+                    // 隱藏登入連結，顯示用戶選單
+                    $('#loginLink').addClass('d-none');
+                    $('#userMenu').removeClass('d-none');
+                    $('#userDisplayName').text(user.memberName);
+                } else {
+                    // 顯示登入連結，隱藏用戶選單
+                    $('#loginLink').removeClass('d-none');
+                    $('#userMenu').addClass('d-none');
+                }
+            }
+
+            // 更新購物車數量函式（可自行保留或修改）
+            function updateCartBadge(count) {
+                $('.cart-badge').text(count);
+            }
+
+            // 載入購物車內容函式（可自行保留或修改）
+            function loadCartContents() {
+                fetch('http://localhost:8080/api/cart', {
+                    method: 'GET',
+                    credentials: 'include'
+                })
+                    .then(response => {
+                        if (!response.ok) throw new Error('載入購物車失敗');
+                        return response.json();
+                    })
+                    .then(data => {
+                        updateCartBadge(data.pcs || 0);
+                    })
+                    .catch(error => {
+                        console.error('載入購物車失敗:', error);
+                        updateCartBadge(0);
+                    });
+            }
+
+            // 初始載入會員（全部）
+            loadAllMembers();
+
+
+
+            
+
+            // 登出按鈕
+            $('#logoutBtn').on('click', function (e) {
+                e.preventDefault();
+                fetch('http://localhost:8080/api/members/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        // 清除 localStorage
+                        localStorage.removeItem('user');
+                        // 更新購物車數量為0
+                        updateCartBadge(0);
+                        // 更新導覽顯示
+                        $('#loginLink').removeClass('d-none');
+                        $('#userMenu').addClass('d-none');
+                        alert(data.message);
+                    })
+                    .catch(error => {
+                        console.error('登出錯誤:', error);
+                        alert('登出失敗，請稍後再試');
+                    });
+            });
+
+            // 檢查登入狀態 & 載入購物車
+            checkLoginStatus();
+            loadCartContents();
+            // 搜尋按鈕點擊事件
+            $('#searchBtn').click(searchMembers);
+
+            // 重置按鈕點擊事件
+            $('#resetBtn').click(resetSearch);
+
+            // 搜尋欄位的 Enter 鍵事件
+            $('.form-control').keypress(function (e) {
+                if (e.which === 13) {
+                    searchMembers();
+                }
+            });
+
+        });
+    </script>
+</body>
+
+</html>

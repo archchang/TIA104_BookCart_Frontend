@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>書籍購物網站</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css"
+        rel="stylesheet">
+    <!-- 自定義CSS -->
+    <style>
+        /* 導航欄樣式 */
+        .navbar {
+            background-color: #4b49ac !important;
+        }
+
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+        }
+
+        /* .search-input {
+            width: 300px !important;
+        } */
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            padding: 2px 5px;
+            border-radius: 50%;
+            background: #dc3545;
+            color: white;
+            font-size: 12px;
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-link {
+            color: white !important;
+            margin-left: 15px;
+        }
+
+        /* 下拉選單樣式 */
+        .dropdown-menu {
+            background-color: white;
+            border: 1px solid rgba(0, 0, 0, .15);
+        }
+
+        .dropdown-item {
+            color: #212529;
+            padding: 8px 20px;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* 左側選單樣式 */
+        .sidebar {
+            background-color: #f8f9fa;
+            min-height: calc(100vh - 56px);
+            padding: 20px;
+            border-right: 1px solid #dee2e6;
+        }
+
+        .sidebar .nav-link {
+            color: white !important;
+            /* 白色文字 */
+            padding: 8px 16px;
+            margin: 4px 0;
+            border-radius: 4px;
+            background-color: #4b49ac;
+            /* 藍色背景 */
+        }
+
+        .sidebar .nav-link:hover {
+            background-color: #3f3e8f;
+            /* 滑鼠移過時的深藍色 */
+        }
+
+        /* 商品管理相關樣式 */
+        .product-img {
+            max-width: 50px;
+            max-height: 50px;
+            object-fit: contain;
+        }
+
+        .action-buttons .btn {
+            margin-right: 5px;
+        }
+
+        .table th {
+            background-color: #4b49ac;
+            color: white;
+        }
+
+        /* 搜尋區域樣式 */
+        .card {
+            border: none;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-label {
+            color: #4b49ac;
+            font-weight: 500;
+        }
+
+        /* RWD 響應式設計 */
+        @media (max-width: 768px) {
+            /* .search-input {
+                width: 100% !important;
+                margin: 10px 0;
+            } */
+
+            .navbar-nav {
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 導航欄 -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <!-- Logo -->
+            <a class="navbar-brand" href="./index.html">
+                <i class="bi bi-book"></i> Book Cart
+            </a>
+
+            <!-- 漢堡選單按鈕 -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- 導航內容 -->
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <!-- 搜尋欄 -->
+                <!-- <form class="d-flex mx-auto" onsubmit="return false;">
+                    <input class="form-control search-input" type="search" placeholder="Search books" id="searchInput">
+                </form> -->
+
+                <!-- 右側選單 -->
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="./shopping-cart.html">
+                            <i class="bi bi-cart3 fs-5"></i>
+                            <span class="cart-badge">0</span>
+                        </a>
+                    </li>
+                    <!-- 登入/使用者選單 -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link" href="./login.html" id="loginLink">
+                            Login
+                        </a>
+                        <!-- 下拉選單 (預設隱藏) -->
+                        <a class="nav-link dropdown-toggle d-none" href="#" id="userMenu" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <span id="userDisplayName"></span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                            <li><a class="dropdown-item" href="#" id="logoutBtn">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要內容區域 -->
+    <div class="container">
+        <!-- 在這裡添加頁面內容 -->
+        <div class="row">
+            <!-- 左側功能選單 -->
+            <div class="col-md-3 col-lg-2 sidebar">
+                <h5 class="mb-3">功能選單</h5>
+                <nav class="nav flex-column">
+                    <a class="nav-link active" href="#"><i class="bi bi-speedometer2"></i> 儀表板</a>
+                    <a class="nav-link" href="./productcategory-manage.html"><i class="bi bi-people"></i> 商品類別管理</a>
+                    <a class="nav-link" href="#"><i class="bi bi-box"></i> 商品管理</a>
+                    <a class="nav-link" href="#"><i class="bi bi-cart"></i> 訂單管理</a>
+                    <a class="nav-link" href="#"><i class="bi bi-gear"></i> 系統設定</a>
+                </nav>
+            </div>
+            <!-- 右側主要功能區 -->
+            <div class="col-md-9 col-lg-10">
+                <!-- 搜尋和新增商品區域 -->
+                <div class="d-flex flex-column mt-3">
+                    <!-- 搜尋區域 -->
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">查詢方式</label>
+                                    <select class="form-select" id="searchType">
+                                        <option value="all">所有商品</option>
+                                        <option value="single">商品編號查詢</option>
+                                        <option value="category">類別查詢</option>
+                                        <option value="keyword">關鍵字查詢</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">搜尋條件</label>
+                                    <input type="text" class="form-control" id="searchInput" placeholder="請輸入搜尋條件...">
+                                    <select class="form-select d-none" id="categorySelect">
+                                        <!-- 類別選項將由JavaScript動態填入 -->
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">&nbsp;</label>
+                                    <button class="btn btn-primary w-100" id="searchBtn">
+                                        <i class="bi bi-search"></i> 搜尋
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 新增商品按鈕 -->
+                    <div class="d-flex justify-content-end mb-3">
+                        <button class="btn btn-success" id="addProductBtn"
+                            onclick="window.location.href='./product-create.html'">
+                            <i class="bi bi-plus-circle"></i> 新增商品
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 商品列表區域 -->
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>商品圖片</th>
+                                <th>商品編號</th>
+                                <th>商品名稱</th>
+                                <th>類別編號</th>
+                                <th>類別名稱</th>
+                                <th>價格</th>
+                                <th>庫存</th>
+                                <th>狀態</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productTableBody">
+                            <!-- 商品資料將由JavaScript動態填入 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <!-- 後台頁面管制用 -->
+    <!-- <script src="/js/authHandler.js"></script> -->
+    <!-- JavaScript -->
+    <script>
+        $(document).ready(function () {
+            // 檢查用戶登入狀態
+            function checkLoginStatus() {
+                const userStr = localStorage.getItem('user');
+                const user = userStr ? JSON.parse(userStr) : null;
+                if (user && user.memberName) {
+                    // 隱藏登入連結，顯示用戶選單
+                    $('#loginLink').addClass('d-none');
+                    $('#userMenu').removeClass('d-none');
+                    $('#userDisplayName').text(user.memberName);
+                } else {
+                    // 顯示登入連結，隱藏用戶選單
+                    $('#loginLink').removeClass('d-none');
+                    $('#userMenu').addClass('d-none');
+                }
+            }
+
+            // 更新購物車數量顯示函數
+            function updateCartBadge(count) {
+                $('.cart-badge').text(count);
+            }
+
+            // 載入購物車內容函數
+            function loadCartContents() {
+                fetch('http://localhost:8080/api/cart', {
+                    method: 'GET',
+                    credentials: 'include'
+                })
+                    .then(response => {
+                        if (!response.ok) throw new Error('載入購物車失敗');
+                        return response.json();
+                    })
+                    .then(data => {
+                        // 更新購物車數量標記
+                        updateCartBadge(data.pcs || 0);
+                    })
+                    .catch(error => {
+                        console.error('載入購物車失敗:', error);
+                        updateCartBadge(0);
+                    });
+            }
+
+            // 存儲所有類別資料的物件
+            let categoryMap = {};
+
+            // 統一的載入類別函數
+            async function loadCategories() {
+                try {
+                    const response = await fetch('http://localhost:8080/api/categories', {
+                        method: 'GET',
+                        credentials: 'include'
+                    });
+                    const categories = await response.json();
+
+                    // 更新類別映射
+                    categoryMap = categories.reduce((map, category) => {
+                        map[category.category_no] = category.category_name;
+                        return map;
+                    }, {});
+
+                    // 更新搜尋下拉選單
+                    const categorySelect = $('#categorySelect');
+                    categorySelect.empty();
+                    categories.forEach(category => {
+                        categorySelect.append(`
+                    <option value="${category.category_name}">
+                        ${category.category_name}
+                    </option>
+                `);
+                    });
+
+                    return categories;
+                } catch (error) {
+                    console.error('載入類別失敗:', error);
+                    throw error;
+                }
+            }
+
+            // 初始化資料函數
+            async function initializeData() {
+                try {
+                    // 先載入所有類別
+                    await loadCategories();
+                    // 再載入所有商品
+                    await loadProducts();
+                } catch (error) {
+                    console.error('初始化資料失敗:', error);
+                    alert('載入資料失敗，請稍後再試');
+                }
+            }
+
+            // 載入所有商品函數
+            async function loadProducts() {
+                try {
+                    const response = await fetch('http://localhost:8080/api/products', {
+                        method: 'GET',
+                        credentials: 'include'
+                    });
+                    const products = await response.json();
+                    displayProducts(products);
+                } catch (error) {
+                    console.error('載入商品失敗:', error);
+                    throw error;
+                }
+            }
+
+            // 顯示商品列表函數
+            function displayProducts(products) {
+                const tbody = $('#productTableBody');
+                tbody.empty();
+
+                products.forEach(product => {
+                    const categoryName = categoryMap[product.category_no] || '未分類';
+
+                    const row = `
+                <tr>
+                    <td>
+                        <img src="http://localhost:8080/api/products/${product.product_no}/image" 
+                             alt="${product.product_name}" 
+                             class="product-img">
+                    </td>
+                    <td>${product.product_no}</td>
+                    <td>${product.product_name}</td>
+                    <td>${product.category_no}</td>
+                    <td>${categoryName}</td>
+                    <td>$${product.product_price}</td>
+                    <td>${product.product_stock}</td>
+                    <td>${product.product_status === 1 ? '上架' : '下架'}</td>
+                    <td class="action-buttons">
+                        <button class="btn btn-sm btn-primary" onclick="editProduct(${product.product_no})">
+                            <i class="bi bi-pencil"></i> 修改
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteProduct(${product.product_no})">
+                            <i class="bi bi-trash"></i> 刪除
+                        </button>
+                    </td>
+                </tr>
+            `;
+                    tbody.append(row);
+                });
+            }
+
+            // 過濾商品函數
+            function filterProducts(searchText) {
+                const tbody = $('#productTableBody');
+                tbody.find('tr').each(function () {
+                    const row = $(this);
+                    const productName = row.find('td:eq(2)').text().toLowerCase();
+                    const categoryName = row.find('td:eq(4)').text().toLowerCase();
+
+                    if (productName.includes(searchText.toLowerCase()) ||
+                        categoryName.includes(searchText.toLowerCase())) {
+                        row.show();
+                    } else {
+                        row.hide();
+                    }
+                });
+            }
+
+            // 修改商品函數
+            window.editProduct = function (productNo) {
+                window.location.href = `product-update.html?id=${productNo}`;
+            }
+
+            // 刪除商品函數
+            window.deleteProduct = function (productNo) {
+                // 顯示確認對話框
+                if (confirm('確定要刪除此商品嗎？')) {
+                    // 呼叫刪除 API
+                    fetch(`http://localhost:8080/api/products/${productNo}`, {
+                        method: 'DELETE',
+                        credentials: 'include'
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('刪除失敗');
+                            }
+                            return response.text();
+                        })
+                        .then(message => {
+                            // 顯示成功訊息
+                            alert('商品已成功刪除');
+                            // 重新載入商品列表
+                            loadProducts();
+                        })
+                        .catch(error => {
+                            console.error('刪除商品時發生錯誤:', error);
+                            alert('刪除商品失敗，請稍後再試');
+                        });
+                }
+            }
+
+            // 搜尋相關功能初始化
+            function initializeSearch() {
+                // 監聽查詢方式變更
+                $('#searchType').change(function () {
+                    const searchType = $(this).val();
+                    toggleSearchInput(searchType);
+
+                    //如果選擇"所有商品"，自動載入所有商品
+                    if (searchType === 'all') {
+                        loadProducts();
+                    }
+                });
+
+                // 搜尋按鈕點擊事件
+                $('#searchBtn').click(function () {
+                    performSearch();
+                });
+            }
+
+            // 切換搜尋輸入方式
+            function toggleSearchInput(searchType) {
+                if (searchType === 'category') {
+                    $('#searchInput').addClass('d-none');
+                    $('#categorySelect').removeClass('d-none');
+                } else {
+                    $('#searchInput').removeClass('d-none');
+                    $('#categorySelect').addClass('d-none');
+                }
+
+                //當選擇"所有商品"時隱藏搜尋條件欄位
+                if (searchType === 'all') {
+                    $('#searchInput, #categorySelect').addClass('d-none');
+                }
+            }
+
+            // 執行搜尋
+            async function performSearch() {
+                const searchType = $('#searchType').val();
+                let searchValue;
+                let url;
+
+                switch (searchType) {
+                    case 'all':
+                        // 直接載入所有商品
+                        await loadProducts();
+                        return;
+                    case 'single':
+                        searchValue = $('#searchInput').val().trim();
+                        if (!searchValue) {
+                            alert('請輸入商品編號');
+                            return;
+                        }
+                        url = `http://localhost:8080/api/products/${searchValue}`;
+                        break;
+                    case 'category':
+                        searchValue = $('#categorySelect').val();
+                        url = `http://localhost:8080/api/products/category/${searchValue}`;
+                        break;
+                    case 'keyword':
+                        searchValue = $('#searchInput').val().trim();
+                        if (!searchValue) {
+                            alert('請輸入關鍵字');
+                            return;
+                        }
+                        url = `http://localhost:8080/api/products/search?name=${encodeURIComponent(searchValue)}`;
+                        break;
+                }
+
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error('搜尋失敗');
+                    }
+                    const data = await response.json();
+                    // 如果是單一商品查詢，將結果轉換為陣列
+                    const products = Array.isArray(data) ? data : [data];
+                    // 使用原有的displayProducts函數顯示結果
+                    displayProducts(products);
+                } catch (error) {
+                    console.error('搜尋失敗:', error);
+                    alert('搜尋失敗，請稍後再試');
+                }
+            }
+
+            // 處理登出
+            $('#logoutBtn').on('click', function (e) {
+                e.preventDefault();
+
+                fetch('http://localhost:8080/api/members/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        // 清除 localStorage
+                        localStorage.removeItem('user');
+
+                        // 更新購物車數量為0
+                        updateCartBadge(0);
+
+                        // 更新導航欄顯示
+                        $('#loginLink').removeClass('d-none');
+                        $('#userMenu').addClass('d-none');
+
+                        // 顯示成功訊息
+                        alert(data.message);
+                    })
+                    .catch(error => {
+                        console.error('登出錯誤:', error);
+                        alert('登出失敗，請稍後再試');
+                    });
+            });
+
+            // 頁面載入時執行
+            checkLoginStatus();
+            loadCartContents();
+            initializeData();
+            initializeSearch();
+        });
+    </script>
+</body>
+
+</html>

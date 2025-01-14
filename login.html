@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>書籍購物網站</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css"
+        rel="stylesheet">
+    <!-- 自定義CSS -->
+    <style>
+        /* 導航欄樣式 */
+        .navbar {
+            background-color: #4b49ac !important;
+        }
+
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+        }
+
+        .search-input {
+            width: 300px !important;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            padding: 2px 5px;
+            border-radius: 50%;
+            background: #dc3545;
+            color: white;
+            font-size: 12px;
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-link {
+            color: white !important;
+            margin-left: 15px;
+        }
+
+        /* 登入表單樣式 */
+        .login-container {
+            max-width: 500px;
+            margin: 40px auto;
+            padding: 0;
+            border: 1px solid #d3d3d3;
+            border-radius: 5px;
+        }
+
+        .login-header {
+            background-color: #ff4081;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 5px 5px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .login-header h3 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .login-form {
+            padding: 20px;
+            background: white;
+            border-radius: 0 0 5px 5px;
+        }
+
+        .form-control {
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            padding: 10px;
+            height: auto;
+        }
+
+        .form-control:focus {
+            border-color: #ff4081;
+            box-shadow: none;
+        }
+
+        .btn-register {
+            background-color: white;
+            border: 1px solid #ff4081;
+            color: #000000;
+            padding: 4px 12px;
+            font-size: 14px;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+            /* 添加過渡效果 */
+        }
+
+        .btn-register:hover {
+            background-color: #f8f9fa;
+            /* Bootstrap 的淺灰色 */
+            border: 1px solid #ff4081;
+            color: #000000;
+            /* 保持文字顏色不變 */
+        }
+
+        /* 按鈕容器使用 flex 布局 */
+        .button-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn-login {
+            background-color: #4169e1;
+            border: none;
+            padding: 10px 20px;
+            color: white;
+            border-radius: 4px;
+        }
+
+        .btn-login:hover {
+            background-color: #3151b5;
+        }
+
+        .password-toggle {
+            background: none;
+            border: none;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            z-index: 10;
+        }
+
+        .password-toggle:focus {
+            outline: none;
+        }
+
+        .position-relative {
+            position: relative;
+        }
+
+        /* 下拉選單樣式 */
+        .dropdown-menu {
+            background-color: white;
+            border: 1px solid rgba(0, 0, 0, .15);
+        }
+
+        .dropdown-item {
+            color: #212529;
+            padding: 8px 20px;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* RWD 響應式設計 */
+        @media (max-width: 768px) {
+            .search-input {
+                width: 100% !important;
+                margin: 10px 0;
+            }
+
+            .navbar-nav {
+                margin-top: 10px;
+            }
+
+            .card {
+                margin: 0 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 導航欄 -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <!-- Logo -->
+            <a class="navbar-brand" href="./index.html">
+                <i class="bi bi-book"></i> Book Cart
+            </a>
+
+            <!-- 漢堡選單按鈕 -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- 導航內容 -->
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <!-- 搜尋欄 -->
+                <form class="d-flex mx-auto" onsubmit="return false;">
+                    <input class="form-control search-input" type="search" placeholder="Search books" id="searchInput">
+                </form>
+
+                <!-- 右側選單 -->
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="./shopping-cart.html">
+                            <i class="bi bi-cart3 fs-5"></i>
+                            <span class="cart-badge">0</span>
+                        </a>
+                    </li>
+                    <!-- 登入/使用者選單 -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link" href="./login.html" id="loginLink">
+                            Login
+                        </a>
+                        <!-- 下拉選單 (預設隱藏) -->
+                        <a class="nav-link dropdown-toggle d-none" href="#" id="userMenu" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <span id="userDisplayName"></span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                            <li><a class="dropdown-item" href="./member-profile.html">會員中心</a></li>
+                            <li><a class="dropdown-item" href="#" id="logoutBtn">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- 主要內容區域 -->
+
+    <div class="container-fluid">
+        <div class="login-container">
+            <!-- 登入標題區塊 -->
+            <div class="login-header">
+                <h3>Login</h3>
+                <div>
+                    <span class="text-white me-2">New User?</span>
+                    <a href="./register.html" class="btn-register text-decoration-none">Register</a>
+                    <a href="./forgot-password.html" class="btn-register text-decoration-none">忘記密碼</a>
+                </div>
+            </div>
+
+            <!-- 登入表單 -->
+            <div class="login-form">
+                <form id="loginForm" novalidate>
+                    <!-- 帳號輸入欄位 -->
+                    <div class="mb-4">
+                        <input type="text" class="form-control" id="username" name="memberAccount" required
+                            placeholder="Username*">
+                        <div class="invalid-feedback">
+                            請輸入帳號
+                        </div>
+                    </div>
+
+                    <!-- 密碼輸入欄位 -->
+                    <div class="mb-4 position-relative">
+                        <input type="password" class="form-control" id="password" name="memberPassword" required
+                            placeholder="Password*">
+                        <button type="button" class="password-toggle" id="togglePassword">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        <div class="invalid-feedback">
+                            請輸入密碼
+                        </div>
+                    </div>
+
+                    <!-- 登入按鈕容器 -->
+                    <div class="button-container">
+                        <button type="submit" class="btn-login">
+                            Login
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+    <!-- JavaScript -->
+    <script>
+        $(document).ready(function () {
+            // 檢查用戶登入狀態
+            function checkLoginStatus() {
+                const user = JSON.parse(localStorage.getItem('user'));
+                if (user && user.memberName) {
+                    // 隱藏登入連結，顯示用戶選單
+                    $('#loginLink').addClass('d-none');
+                    $('#userMenu').removeClass('d-none');
+                    $('#userDisplayName').text(user.memberName);
+                } else {
+                    // 顯示登入連結，隱藏用戶選單
+                    $('#loginLink').removeClass('d-none');
+                    $('#userMenu').addClass('d-none');
+                }
+            }
+
+            // 更新購物車數量顯示函數
+            function updateCartBadge(count) {
+                $('.cart-badge').text(count);
+            }
+
+            // 載入購物車內容函數
+            function loadCartContents() {
+                fetch('http://localhost:8080/api/cart', {
+                    method: 'GET',
+                    credentials: 'include'
+                })
+                    .then(response => {
+                        if (!response.ok) throw new Error('載入購物車失敗');
+                        return response.json();
+                    })
+                    .then(data => {
+                        // 更新購物車數量標記
+                        updateCartBadge(data.pcs || 0);
+                    })
+                    .catch(error => {
+                        console.error('載入購物車失敗:', error);
+                        updateCartBadge(0);
+                    });
+            }
+
+            // 搜尋延遲計時器
+            let searchTimeout;
+
+            // 搜尋欄事件處理
+            $('#searchInput').on('input', function () {
+                const searchText = $(this).val().trim();
+
+                // 清除之前的計時器
+                clearTimeout(searchTimeout);
+
+                // 設定新的計時器 (延遲 300ms 再執行搜尋，避免過於頻繁的 API 請求)
+                searchTimeout = setTimeout(() => {
+                    if (searchText === '') {
+                        // 如果搜尋欄為空，可以執行相應的處理
+                        console.log('搜尋欄為空');
+                    } else {
+                        // 執行搜尋
+                        searchProducts(searchText);
+                    }
+                }, 300);
+            });
+
+            // 搜尋商品函數
+            function searchProducts(searchText) {
+                // 使用 Fetch API 發送搜尋請求
+                fetch(`http://localhost:8080/api/products/search?name=${encodeURIComponent(searchText)}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('搜尋失敗');
+                        }
+                        return response.json();
+                    })
+                    .then(products => {
+                        console.log('搜尋結果:', products);
+                        // 在這裡處理搜尋結果
+                    })
+                    .catch(error => {
+                        console.error('搜尋錯誤:', error);
+                    });
+            }
+
+            // 處理登入表單提交
+            $('#loginForm').on('submit', function (e) {
+                e.preventDefault();
+
+                if (!this.checkValidity()) {
+                    e.stopPropagation();
+                    $(this).addClass('was-validated');
+                    return;
+                }
+
+                const loginData = {
+                    memberAccount: $('#username').val(),
+                    memberPassword: $('#password').val()
+                };
+
+                fetch('http://localhost:8080/api/members/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(loginData),
+                    credentials: 'include'
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(err => Promise.reject(err));
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data && data.memberName) {
+                            // 將用戶資訊存入 localStorage, 增加存入 memberNo
+                            localStorage.setItem('user', JSON.stringify({
+                                memberNo: data.memberNo,  // 新增 memberNo
+                                memberName: data.memberName,
+                                memberAccount: data.memberAccount
+                            }));
+
+                            if (data.memberStatus === 2) {
+                                window.location.href = "admin/admin-index.html";
+                            } else {
+                                window.location.href = "index.html";
+                            }
+                            // 重新載入購物車內容
+                            loadCartContents();
+
+
+                        } else {
+                            alert('登入失敗，請重試');
+                        }
+                    })
+                    .catch(error => {
+                        if (error.memberAccount) {
+                            alert(error.memberAccount);
+                        } else if (error.memberPassword) {
+                            alert(error.memberPassword);
+                        } else if (error.error) {
+                            alert(error.error);
+                        } else {
+                            alert('登入失敗，請稍後再試');
+                        }
+                    });
+            });
+
+            // 切換密碼顯示/隱藏
+            $('#togglePassword').on('click', function () {
+                const passwordInput = $('#password');
+                const icon = $(this).find('i');
+
+                if (passwordInput.attr('type') === 'password') {
+                    passwordInput.attr('type', 'text');
+                    icon.removeClass('bi-eye').addClass('bi-eye-slash');
+                } else {
+                    passwordInput.attr('type', 'password');
+                    icon.removeClass('bi-eye-slash').addClass('bi-eye');
+                }
+            });
+
+            // 處理登出
+            $('#logoutBtn').on('click', function (e) {
+                e.preventDefault();
+
+                fetch('http://localhost:8080/api/members/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        // 清除 sessionStorage
+                        localStorage.removeItem('user');
+
+                        // 更新購物車數量為0
+                        updateCartBadge(0);
+
+                        // 顯示成功訊息
+                        alert(data.message);
+                        // 重新導向到首頁
+                        window.location.href = 'index.html';
+                    })
+                    .catch(error => {
+                        console.error('登出錯誤:', error);
+                        alert('登出失敗，請稍後再試');
+                    });
+            });
+
+            // 頁面載入時執行
+            checkLoginStatus();
+            // 載入購物車內容
+            loadCartContents();
+        });
+    </script>
+</body>
+
+</html>

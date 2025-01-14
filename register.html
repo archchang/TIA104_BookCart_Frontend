@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>書籍購物網站</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css"
+        rel="stylesheet">
+    <!-- 自定義CSS -->
+    <style>
+        /* 導航欄樣式 */
+        .navbar {
+            background-color: #4b49ac !important;
+        }
+
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+        }
+
+        .search-input {
+            width: 300px !important;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            padding: 2px 5px;
+            border-radius: 50%;
+            background: #dc3545;
+            color: white;
+            font-size: 12px;
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-link {
+            color: white !important;
+            margin-left: 15px;
+        }
+
+        /* 下拉選單樣式 */
+        .dropdown-menu {
+            background-color: white;
+            border: 1px solid rgba(0, 0, 0, .15);
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
+        }
+
+        .dropdown-item {
+            color: #333;
+            padding: 8px 20px;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* 註冊表單樣式 */
+        .register-container {
+            max-width: 500px;
+            margin: 40px auto;
+            padding: 0;
+            border: 1px solid #d3d3d3;
+            border-radius: 5px;
+        }
+
+        .register-header {
+            background-color: #ff4081;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 5px 5px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .register-header h3 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .register-form {
+            padding: 20px;
+            background: white;
+            border-radius: 0 0 5px 5px;
+        }
+
+        .form-control {
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            padding: 10px;
+            height: auto;
+            margin-bottom: 15px;
+        }
+
+        .form-control:focus {
+            border-color: #ff4081;
+            box-shadow: none;
+        }
+
+        .btn-login {
+            background-color: white;
+            border: 1px solid #ff4081;
+            color: #000000;
+            padding: 4px 12px;
+            font-size: 14px;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-login:hover {
+            background-color: #f8f9fa;
+        }
+
+        .btn-register {
+            background-color: #4169e1;
+            border: none;
+            padding: 10px 20px;
+            color: white;
+            border-radius: 4px;
+            /* 移除寬度 100% */
+            width: auto;
+        }
+
+        .btn-register:hover {
+            background-color: #3151b5;
+        }
+
+        /* 按鈕容器使用 flex 布局 */
+        .button-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .password-toggle {
+            background: none;
+            border: none;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            z-index: 10;
+        }
+
+        .password-toggle:focus {
+            outline: none;
+        }
+
+        .position-relative {
+            position: relative;
+        }
+
+        /* 驗證提示樣式 */
+        .valid-feedback,
+        .invalid-feedback {
+            font-size: 12px;
+            margin-top: -10px;
+            margin-bottom: 10px;
+        }
+
+        /* 錯誤提示樣式 */
+        .error-text {
+            font-size: 12px;
+            margin-top: 4px;
+            color: #dc3545;
+        }
+
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            padding-right: calc(1.5em + 0.75rem);
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+
+        .form-control:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
+        }
+
+        .form-control.is-invalid:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, .25);
+        }
+
+        /* RWD 響應式設計 */
+        @media (max-width: 576px) {
+            .register-container {
+                margin: 20px;
+            }
+
+            .search-input {
+                width: 100% !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 導航欄 -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <!-- Logo -->
+            <a class="navbar-brand" href="./index.html">
+                <i class="bi bi-book"></i> Book Cart
+            </a>
+
+            <!-- 漢堡選單按鈕 -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- 導航內容 -->
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <!-- 搜尋欄 -->
+                <form class="d-flex mx-auto" onsubmit="return false;">
+                    <input class="form-control search-input" type="search" placeholder="Search books" id="searchInput">
+                </form>
+
+                <!-- 右側選單 -->
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="./shopping-cart.html">
+                            <i class="bi bi-cart3 fs-5"></i>
+                            <span class="cart-badge">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown" id="userMenu">
+                        <!-- 未登入時顯示 -->
+                        <a class="nav-link" href="./login.html" id="loginLink">Login</a>
+
+                        <!-- 登入後顯示 -->
+                        <a class="nav-link dropdown-toggle d-none" href="#" id="userDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="./member-profile.html">會員中心</a></li>
+                            <li><a class="dropdown-item" href="#" id="logoutBtn">登出</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- 主要內容區域 -->
+    <div class="container-fluid">
+        <div class="register-container">
+            <!-- 註冊標題區塊 -->
+            <div class="register-header">
+                <h3>會員註冊</h3>
+                <div>
+                    <span class="text-white me-2">已經註冊過了？</span>
+                    <a href="./login.html" class="btn-login text-decoration-none">登入</a>
+                </div>
+            </div>
+
+            <!-- 註冊表單 -->
+            <div class="register-form">
+                <form id="registerForm" novalidate>
+                    <!-- 姓名欄位 -->
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="memberName" name="memberName" required
+                            placeholder="姓名*">
+                        <small class="error-text text-danger d-none">請輸入姓名</small>
+                    </div>
+
+                    <!-- 帳號欄位 -->
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="memberAccount" name="memberAccount" required
+                            placeholder="帳號*">
+                        <small class="error-text text-danger d-none">請輸入帳號</small>
+                    </div>
+
+                    <!-- 電子郵件欄位 -->
+                    <div class="mb-3">
+                        <input type="email" class="form-control" id="memberEmail" name="memberEmail" required
+                            placeholder="Email*">
+                        <small class="error-text text-danger d-none">請輸入有效的電子郵件地址</small>
+                    </div>
+
+                    <!-- 密碼欄位 -->
+                    <div class="mb-3 position-relative">
+                        <input type="password" class="form-control" id="memberPassword" name="memberPassword" required
+                            placeholder="密碼*">
+                        <button type="button" class="password-toggle" data-target="memberPassword">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        <small class="error-text text-danger d-none">密碼至少需要8個字符，包含至少1個大寫字母、1個小寫字母和1個數字</small>
+                    </div>
+
+                    <!-- 確認密碼欄位 -->
+                    <div class="mb-3 position-relative">
+                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required
+                            placeholder="確認密碼*">
+                        <button type="button" class="password-toggle" data-target="confirmPassword">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        <small class="error-text text-danger d-none">密碼不匹配</small>
+                    </div>
+
+                    <!-- 註冊按鈕 -->
+                    <div class="button-container">
+                        <button type="submit" class="btn-register">註冊</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+    <!-- JavaScript -->
+    <script>
+        $(document).ready(function () {
+            // 檢查登入狀態
+            checkLoginStatus();
+            // 載入購物車內容
+            loadCartContents();
+
+            // 登出按鈕事件處理
+            $('#logoutBtn').on('click', handleLogout);
+
+            // 即時驗證
+            $('#memberName').on('input', validateName);
+            $('#memberAccount').on('input', validateAccount);
+            $('#memberEmail').on('input', validateEmail);
+            $('#memberPassword').on('input', validatePassword);
+            $('#confirmPassword').on('input', validateConfirmPassword);
+
+            // 密碼顯示切換
+            $('.password-toggle').on('click', function () {
+                const targetId = $(this).data('target');
+                const input = $(`#${targetId}`);
+                const icon = $(this).find('i');
+
+                if (input.attr('type') === 'password') {
+                    input.attr('type', 'text');
+                    icon.removeClass('bi-eye').addClass('bi-eye-slash');
+                } else {
+                    input.attr('type', 'password');
+                    icon.removeClass('bi-eye-slash').addClass('bi-eye');
+                }
+            });
+
+            // 表單提交時的驗證
+            $('#registerForm').on('submit', function (e) {
+                e.preventDefault();
+
+                // 驗證所有欄位
+                const isNameValid = validateName();
+                const isAccountValid = validateAccount();
+                const isEmailValid = validateEmail();
+                const isPasswordValid = validatePassword();
+                const isConfirmPasswordValid = validateConfirmPassword();
+
+                if (isNameValid && isAccountValid && isEmailValid &&
+                    isPasswordValid && isConfirmPasswordValid) {
+                    submitForm();
+                }
+            });
+
+            // 搜尋功能
+            let searchTimeout;
+            $('#searchInput').on('input', function () {
+                const searchText = $(this).val().trim();
+                clearTimeout(searchTimeout);
+
+                searchTimeout = setTimeout(() => {
+                    if (searchText) {
+                        searchProducts(searchText);
+                    }
+                }, 300);
+            });
+        });
+
+        // 檢查登入狀態函數
+        function checkLoginStatus() {
+            // 先從 localStorage 檢查登入狀態
+            const userStr = localStorage.getItem('user');
+            const user = userStr ? JSON.parse(userStr) : null;
+            if (user && user.memberName) {
+                // 已登入狀態
+                $('#loginLink').addClass('d-none');
+                $('#userMenu').removeClass('d-none');
+                $('#userDisplayName').text(user.memberName);
+            } else {
+                // 未登入狀態
+                $('#loginLink').removeClass('d-none');
+                $('#userMenu').addClass('d-none');
+            }
+        }
+
+        // 更新購物車數量顯示函數
+        function updateCartBadge(count) {
+            $('.cart-badge').text(count);
+        }
+
+        // 載入購物車內容函數
+        function loadCartContents() {
+            fetch('http://localhost:8080/api/cart', {
+                method: 'GET',
+                credentials: 'include'
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('載入購物車失敗');
+                    return response.json();
+                })
+                .then(data => {
+                    // 更新購物車數量標記
+                    updateCartBadge(data.pcs || 0);
+                })
+                .catch(error => {
+                    console.error('載入購物車失敗:', error);
+                    updateCartBadge(0);
+                });
+        }
+
+        // 處理登出函數
+        function handleLogout(e) {
+            e.preventDefault();
+
+            fetch('http://localhost:8080/api/members/logout', {
+                method: 'POST',
+                credentials: 'include'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message === '登出成功') {
+                        localStorage.removeItem('user');
+                        updateCartBadge(0);
+                        window.location.href = './login.html';
+                    }
+                })
+                .catch(error => {
+                    console.error('登出失敗:', error);
+                    alert('登出失敗，請稍後再試');
+                });
+        }
+
+        // 驗證姓名函數
+        function validateName() {
+            const nameInput = $('#memberName');
+            const errorText = nameInput.siblings('.error-text');
+            const value = nameInput.val().trim();
+
+            if (!value) {
+                nameInput.addClass('is-invalid');
+                errorText.removeClass('d-none');
+                return false;
+            } else {
+                nameInput.removeClass('is-invalid');
+                errorText.addClass('d-none');
+                return true;
+            }
+        }
+
+        // 驗證帳號函數
+        function validateAccount() {
+            const accountInput = $('#memberAccount');
+            const errorText = accountInput.siblings('.error-text');
+            const value = accountInput.val().trim();
+
+            if (!value) {
+                accountInput.addClass('is-invalid');
+                errorText.removeClass('d-none');
+                return false;
+            } else {
+                accountInput.removeClass('is-invalid');
+                errorText.addClass('d-none');
+                return true;
+            }
+        }
+
+        // 驗證Email函數
+        function validateEmail() {
+            const emailInput = $('#memberEmail');
+            const errorText = emailInput.siblings('.error-text');
+            const value = emailInput.val().trim();
+            const emailRegex = /^[A-Za-z0-9+_.-]+@(.+)$/;
+
+            if (!value || !emailRegex.test(value)) {
+                emailInput.addClass('is-invalid');
+                errorText.removeClass('d-none');
+                return false;
+            } else {
+                emailInput.removeClass('is-invalid');
+                errorText.addClass('d-none');
+                return true;
+            }
+        }
+
+        // 驗證密碼函數
+        function validatePassword() {
+            const passwordInput = $('#memberPassword');
+            const errorText = passwordInput.siblings('.error-text');
+            const value = passwordInput.val();
+            const passwordRegex = /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9]{8,}$/;
+
+            if (!value || !passwordRegex.test(value)) {
+                passwordInput.addClass('is-invalid');
+                errorText.removeClass('d-none');
+                return false;
+            } else {
+                passwordInput.removeClass('is-invalid');
+                errorText.addClass('d-none');
+                validateConfirmPassword();
+                return true;
+            }
+        }
+
+        // 驗證確認密碼函數
+        function validateConfirmPassword() {
+            const confirmInput = $('#confirmPassword');
+            const passwordInput = $('#memberPassword');
+            const errorText = confirmInput.siblings('.error-text');
+            const value = confirmInput.val();
+
+            if (!value || value !== passwordInput.val()) {
+                confirmInput.addClass('is-invalid');
+                errorText.removeClass('d-none');
+                return false;
+            } else {
+                confirmInput.removeClass('is-invalid');
+                errorText.addClass('d-none');
+                return true;
+            }
+        }
+
+        // 提交表單函數
+        function submitForm() {
+            const formData = {
+                memberName: $('#memberName').val().trim(),
+                memberAccount: $('#memberAccount').val().trim(),
+                memberEmail: $('#memberEmail').val().trim(),
+                memberPassword: $('#memberPassword').val()
+            };
+
+            fetch('http://localhost:8080/api/members/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData),
+                credentials: 'include'
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => {
+                            throw new Error(data.message || '註冊失敗');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    alert('註冊成功！');
+                    window.location.href = './login.html';
+                })
+                .catch(error => {
+                    if (error.message.includes('此帳號已被註冊')) {
+                        $('#memberAccount').addClass('is-invalid');
+                        $('#memberAccount').siblings('.error-text').text('此帳號已被註冊').removeClass('d-none');
+                    } else if (error.message.includes('此Email已被註冊')) {
+                        $('#memberEmail').addClass('is-invalid');
+                        $('#memberEmail').siblings('.error-text').text('此Email已被註冊').removeClass('d-none');
+                    } else {
+                        alert(error.message);
+                    }
+                    console.error('註冊錯誤:', error);
+                });
+        }
+
+        // 搜尋商品函數
+        function searchProducts(searchText) {
+            fetch(`http://localhost:8080/api/products/search?name=${encodeURIComponent(searchText)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('搜尋失敗');
+                    }
+                    return response.json();
+                })
+                .then(products => {
+                    console.log('搜尋結果:', products);
+                    // 這裡可以加入顯示搜尋結果的邏輯
+                })
+                .catch(error => {
+                    console.error('搜尋錯誤:', error);
+                });
+        }
+
+    </script>
+</body>
+
+</html>

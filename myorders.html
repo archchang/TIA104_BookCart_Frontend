@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>書籍購物網站</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css"
+        rel="stylesheet">
+    <!-- 自定義CSS -->
+    <style>
+        /* 導航欄樣式 */
+        .navbar {
+            background-color: #4b49ac !important;
+        }
+
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+        }
+
+        .search-input {
+            width: 300px !important;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            padding: 2px 5px;
+            border-radius: 50%;
+            background: #dc3545;
+            color: white;
+            font-size: 12px;
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-link {
+            color: white !important;
+            margin-left: 15px;
+        }
+
+        /* 下拉選單樣式 */
+        .dropdown-menu {
+            background-color: white;
+            border: 1px solid rgba(0, 0, 0, .15);
+        }
+
+        .dropdown-item {
+            color: #212529;
+            padding: 8px 20px;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* 新增的訂單相關樣式 */
+        .order-row {
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .order-row:hover {
+            background-color: #f8f9fa;
+        }
+
+        .selected-order {
+            background-color: #e9ecef;
+        }
+
+        #orderDetails {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* RWD 響應式設計 */
+        @media (max-width: 768px) {
+            .search-input {
+                width: 100% !important;
+                margin: 10px 0;
+            }
+
+            .navbar-nav {
+                margin-top: 10px;
+            }
+
+            .table-responsive {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 導航欄 -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <!-- Logo -->
+            <a class="navbar-brand" href="./index.html">
+                <i class="bi bi-book"></i> Book Cart
+            </a>
+
+            <!-- 漢堡選單按鈕 -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- 導航內容 -->
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <!-- 搜尋欄 -->
+                <form class="d-flex mx-auto" onsubmit="return false;">
+                    <input class="form-control search-input" type="search" placeholder="Search books" id="searchInput">
+                </form>
+
+                <!-- 右側選單 -->
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="./shopping-cart.html">
+                            <i class="bi bi-cart3 fs-5"></i>
+                            <span class="cart-badge">0</span>
+                        </a>
+                    </li>
+                    <!-- 登入/使用者選單 -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link" href="./login.html" id="loginLink">
+                            Login
+                        </a>
+                        <!-- 下拉選單 (預設隱藏) -->
+                        <a class="nav-link dropdown-toggle d-none" href="#" id="userMenu" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <span id="userDisplayName"></span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                            <li><a class="dropdown-item" href="./member-profile.html">會員中心</a></li>
+                            <li><a class="dropdown-item" href="#" id="logoutBtn">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要內容區域 -->
+    <div class="container mt-4">
+        <!-- 訂單標題 -->
+        <div class="bg-danger text-white p-3 mb-4">
+            <h4 class="m-0">My Orders</h4>
+        </div>
+
+        <!-- 搜尋框 -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <input type="text" class="form-control" id="orderSearch" placeholder="搜尋訂單...">
+            </div>
+        </div>
+
+        <!-- 訂單列表 -->
+        <div class="table-responsive mb-4">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>訂單編號</th>
+                        <th>訂購日期</th>
+                        <th>總金額</th>
+                        <th>狀態</th>
+                    </tr>
+                </thead>
+                <tbody id="orderList">
+                    <!-- 訂單資料將由JavaScript動態產生 -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 訂單詳情區域 (初始隱藏) -->
+        <div id="orderDetails" class="card mb-4">
+            <div class="card-header bg-light">
+                <h5 class="card-title mb-0">訂單詳細資料</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>商品名稱</th>
+                            <th>數量</th>
+                            <th>單價</th>
+                            <th>小計</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orderItemsList">
+                        <!-- 訂單項目將由JavaScript動態產生 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+        <!-- 分頁控制 -->
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <span class="me-2">每頁顯示:</span>
+                <select class="form-select" id="itemsPerPage" style="width: auto;">
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                </select>
+            </div>
+            <div id="pageInfo" class="text-muted"></div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <!-- 不在登入狀態，強制跳轉到登入畫面 -->
+    <script src="/js/authHandler.js"></script>
+    <!-- JavaScript -->
+    <script>
+        $(document).ready(function () {
+            // 初始化變數
+            let currentPage = 1;
+            let itemsPerPage = 5;
+            let orders = [];
+            let currentMemberNo = null;
+            
+            // 檢查用戶登入狀態
+            function checkLoginStatus() {
+                const userStr = localStorage.getItem('user');
+                const user = userStr ? JSON.parse(userStr) : null;
+                if (user && user.memberName) {
+                    currentMemberNo = user.memberNo;
+                    // 已登入狀態
+                    $('#loginLink').addClass('d-none');
+                    $('#userMenu').removeClass('d-none');
+                    $('#userDisplayName').text(user.memberName);
+                    loadOrders();
+                } else {
+                    window.location.href = 'login.html';
+                }
+            }
+
+            // 更新購物車數量顯示函數
+            function updateCartBadge(count) {
+                $('.cart-badge').text(count);
+            }
+
+            // 載入購物車內容函數
+            function loadCartContents() {
+                fetch('http://localhost:8080/api/cart', {
+                    method: 'GET',
+                    credentials: 'include'
+                })
+                    .then(response => {
+                        if (!response.ok) throw new Error('載入購物車失敗');
+                        return response.json();
+                    })
+                    .then(data => {
+                        // 更新購物車數量標記
+                        updateCartBadge(data.pcs || 0);
+                    })
+                    .catch(error => {
+                        console.error('載入購物車失敗:', error);
+                        updateCartBadge(0);
+                    });
+            }
+
+            // 搜尋延遲計時器
+            let searchTimeout;
+
+            // 商品搜尋功能
+            $('#searchInput').on('input', function () {
+                const searchText = $(this).val().trim();
+                clearTimeout(searchTimeout);
+                
+                searchTimeout = setTimeout(() => {
+                    if (searchText) {
+                        window.location.href = `index.html?search=${encodeURIComponent(searchText)}`;
+                    }
+                }, 300);
+            });
+
+            // 處理登出
+            $('#logoutBtn').on('click', function (e) {
+                e.preventDefault();
+
+                fetch('http://localhost:8080/api/members/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        // 清除 localStorage
+                        localStorage.removeItem('user');
+
+                        // 更新購物車數量為0
+                        updateCartBadge(0);
+
+                        // 顯示成功訊息
+                        alert(data.message);
+                        // 重新導向到首頁
+                        window.location.href = 'index.html';
+                    })
+                    .catch(error => {
+                        console.error('登出錯誤:', error);
+                        alert('登出失敗，請稍後再試');
+                    });
+            });
+
+            // ================ 訂單管理相關功能 ================
+           
+            // 載入訂單列表
+            function loadOrders() {
+                if (!currentMemberNo) return;
+                
+                fetch(`http://localhost:8080/api/orders/member/${currentMemberNo}`, {
+                    method: 'GET',
+                    credentials: 'include'
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('獲取訂單失敗');
+                    return response.json();
+                })
+                .then(data => {
+                    orders = data;
+                    displayOrders();
+                    updatePagination();
+                })
+                .catch(error => {
+                    console.error('獲取訂單失敗:', error);
+                    alert('載入訂單失敗，請稍後再試');
+                });
+            }
+
+            // 顯示訂單列表
+            function displayOrders() {
+                const startIndex = (currentPage - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                const currentOrders = orders.slice(startIndex, endIndex);
+
+                const orderList = $('#orderList');
+                orderList.empty();
+
+                currentOrders.forEach(order => {
+                    //使用split來分割日期字符串
+                    const dateParts = order.orders_date.split('-');
+                    const orderDate = `${dateParts[0]}/${dateParts[1]}/${dateParts[2]}`;
+                    const row = $(`
+                        <tr class="order-row" data-order-id="${order.orders_no}">
+                            <td>${order.orders_no}</td>
+                            <td>${orderDate}</td>
+                            <td>$${order.orders_total}</td>
+                            <td>${getOrderStatus(order.orders_status)}</td>
+                        </tr>
+                    `);
+                    orderList.append(row);
+                });
+
+                // 綁定點擊事件
+                $('.order-row').click(function() {
+                    const orderId = $(this).data('order-id');
+                    loadOrderDetails(orderId);
+                    $('.order-row').removeClass('selected-order');
+                    $(this).addClass('selected-order');
+                });
+            }
+
+            // 載入訂單詳情
+            function loadOrderDetails(ordersNo) {
+                fetch(`http://localhost:8080/api/orders/${ordersNo}/details`, {
+                    method: 'GET',
+                    credentials: 'include'
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('獲取訂單詳情失敗');
+                    return response.json();
+                })
+                .then(data => {
+                    const itemsList = $('#orderItemsList');
+                    itemsList.empty();
+
+                    data.forEach(item => {
+                        const row = $(`
+                            <tr>
+                                <td>${item.product_name}</td>
+                                <td>${item.quantity}</td>
+                                <td>$${item.product_price}</td>
+                                <td>$${(item.product_price * item.quantity)}</td>
+                            </tr>
+                        `);
+                        itemsList.append(row);
+                    });
+
+                    $('#orderDetails').slideDown();
+                })
+                .catch(error => {
+                    console.error('獲取訂單詳情失敗:', error);
+                    alert('載入訂單詳情失敗，請稍後再試');
+                });
+            }
+
+            // 訂單狀態轉換
+            function getOrderStatus(status) {
+                const statusMap = {
+                    1: '<span class="badge bg-success">已完成</span>',
+                    2: '<span class="badge bg-warning text-dark">處理中</span>',
+                    3: '<span class="badge bg-danger">已取消</span>'
+                };
+                return statusMap[status] || '<span class="badge bg-secondary">未知</span>';
+            }
+
+            // 更新分頁信息
+            function updatePagination() {
+                const totalItems = orders.length;
+                const totalPages = Math.ceil(totalItems / itemsPerPage);
+                const startItem = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+                const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+
+                $('#pageInfo').text(`${startItem} - ${endItem} / 共 ${totalItems} 筆`);
+            }
+
+            // 訂單搜尋功能
+            $('#orderSearch').on('input', function () {
+                const searchText = $(this).val().toLowerCase().trim();
+                const filteredOrders = searchText === '' ? orders : 
+                    orders.filter(order => 
+                        order.ordersNo.toLowerCase().includes(searchText) || 
+                        new Date(order.orders_Date).toLocaleDateString('zh-TW').toLowerCase().includes(searchText) ||
+                        order.orders_total.toString().includes(searchText)
+                    );
+
+                // 更新顯示
+                currentPage = 1;
+                displayOrders(filteredOrders);
+                updatePagination();
+            });
+
+            // 切換每頁顯示數量
+            $('#itemsPerPage').change(function () {
+                itemsPerPage = parseInt($(this).val());
+                currentPage = 1;
+                displayOrders();
+                updatePagination();
+            });
+            checkLoginStatus();
+            // 頁面載入時執行初始化
+            initializePage();
+            
+            // 初始化功能
+            function initializePage() {
+                
+                loadCartContents();
+            }
+        });
+    </script>
+</body>
+
+</html>

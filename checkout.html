@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>書籍購物網站</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css"
+        rel="stylesheet">
+    <!-- 自定義CSS -->
+    <style>
+        /* 導航欄樣式 */
+        .navbar {
+            background-color: #4b49ac !important;
+        }
+
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+        }
+
+        .search-input {
+            width: 300px !important;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            padding: 2px 5px;
+            border-radius: 50%;
+            background: #dc3545;
+            color: white;
+            font-size: 12px;
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-link {
+            color: white !important;
+            margin-left: 15px;
+        }
+
+        /* 結帳頁面樣式 */
+        .card {
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .table th {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .credit-card-input {
+            width: 70px;
+            margin-right: 10px;
+        }
+
+        /* 下拉選單樣式 */
+        .dropdown-menu {
+            background-color: white;
+            border: 1px solid rgba(0, 0, 0, .15);
+            min-width: 120px;
+        }
+
+        .dropdown-item {
+            color: #212529;
+            padding: 8px 20px;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+
+
+        /* RWD 響應式設計 */
+        @media (max-width: 768px) {
+            .search-input {
+                width: 100% !important;
+                margin: 10px 0;
+            }
+
+            .navbar-nav {
+                margin-top: 10px;
+            }
+
+            .table-responsive {
+                margin: 0 -15px;
+            }
+
+            .table th,
+            .table td {
+                font-size: 14px;
+                padding: 8px;
+            }
+
+            .credit-card-input {
+                width: 60px;
+                margin-right: 5px;
+            }
+        }
+
+        /* 載入中動畫 */
+        .loading-spinner {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+        }
+
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 載入中提示 -->
+    <div class="loading-overlay"></div>
+    <div class="loading-spinner">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">載入中...</span>
+        </div>
+    </div>
+    <!-- 導航欄 -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="./index.html">
+                <i class="bi bi-book"></i> Book Cart
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <form class="d-flex mx-auto" onsubmit="return false;">
+                    <input class="form-control search-input" type="search" placeholder="搜尋書籍" id="searchInput">
+                </form>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="./shopping-cart.html">
+                            <i class="bi bi-cart3 fs-5"></i>
+                            <span class="cart-badge">0</span>
+                        </a>
+                    </li>
+                    <!-- 登入/使用者選單 -->
+                    <li class="nav-item dropdown">
+                        <!-- 登入連結 (未登入時顯示) -->
+                        <a class="nav-link" href="./login.html" id="loginLink">
+                            Login
+                        </a>
+                        <!-- 用戶選單 (登入後顯示) -->
+                        <a class="nav-link dropdown-toggle d-none" href="#" id="userMenu" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <span id="userDisplayName"></span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                            <li><a class="dropdown-item" href="./member-profile.html">會員中心</a></li>
+                            <li><a class="dropdown-item" href="#" id="logoutBtn">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+
+    <!-- 主要內容區域 -->
+    <div class="container mt-4">
+        <h2 class="text-danger mb-4">結帳資訊</h2>
+
+        <div class="row">
+            <!-- 收件地址表單 -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="mb-3">收件資訊</h3>
+                        <form id="shippingForm">
+                            <!-- 會員資訊 -->
+                            <div class="mb-3">
+                                <label for="memberNo" class="form-label">會員編號</label>
+                                <input type="text" class="form-control" id="memberNo" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="memberName" class="form-label">會員姓名</label>
+                                <input type="text" class="form-control" id="memberName" readonly>
+                            </div>
+
+                            <!-- 收件人姓名 -->
+                            <div class="mb-3">
+                                <label for="name" class="form-label">收件人姓名</label>
+                                <input type="text" class="form-control" id="name" required>
+                            </div>
+
+                            <!-- 收件地址 -->
+                            <div class="mb-3">
+                                <label class="form-label">收件地址</label>
+                                <select class="form-select mb-2" id="city" required>
+                                    <option value="">請選擇縣市</option>
+                                </select>
+                                <select class="form-select mb-2" id="district" required>
+                                    <option value="">請選擇鄉鎮市區</option>
+                                </select>
+                                <input type="text" class="form-control mb-2" id="zipcode" placeholder="郵遞區號" readonly>
+                                <input type="text" class="form-control" id="address" placeholder="請輸入詳細地址" required>
+                            </div>
+
+                            <!-- 收件人手機 -->
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">手機號碼</label>
+                                <input type="tel" class="form-control" id="phone" pattern="^09\d{8}$"
+                                    placeholder="請輸入手機號碼" required>
+                                <div class="form-text">請輸入台灣手機號碼 (格式：0912345678)</div>
+                            </div>
+                            <!-- 信用卡資訊 -->
+                            <div class="mb-3">
+                                <label class="form-label">信用卡號碼</label>
+                                <div class="d-flex">
+                                    <input type="text" class="form-control credit-card-input" maxlength="4" required
+                                        pattern="[0-9]{4}">
+                                    <span class="mx-1">-</span>
+                                    <input type="text" class="form-control credit-card-input" maxlength="4" required
+                                        pattern="[0-9]{4}">
+                                    <span class="mx-1">-</span>
+                                    <input type="text" class="form-control credit-card-input" maxlength="4" required
+                                        pattern="[0-9]{4}">
+                                    <span class="mx-1">-</span>
+                                    <input type="text" class="form-control credit-card-input" maxlength="4" required
+                                        pattern="[0-9]{4}">
+                                </div>
+                            </div>
+
+                            <!-- 信用卡類型 -->
+                            <div class="mb-3">
+                                <label class="form-label">信用卡類型</label>
+                                <div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="cardType" id="visa"
+                                            value="VISA" required>
+                                        <label class="form-check-label" for="visa">VISA</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="cardType" id="mastercard"
+                                            value="MasterCard">
+                                        <label class="form-check-label" for="mastercard">MasterCard</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="cardType" id="jcb"
+                                            value="JCB">
+                                        <label class="form-check-label" for="jcb">JCB</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 信用卡有效期限 -->
+                            <div class="mb-3">
+                                <label class="form-label">信用卡有效期限</label>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <select class="form-select" id="expiryMonth" required>
+                                            <option value="">月</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-6">
+                                        <select class="form-select" id="expiryYear" required>
+                                            <option value="">年</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 信用卡安全碼 -->
+                            <div class="mb-3">
+                                <label for="cvv" class="form-label">信用卡安全碼</label>
+                                <input type="text" class="form-control" id="cvv" maxlength="3" pattern="[0-9]{3}"
+                                    required>
+                            </div>
+
+                            <!-- 送出按鈕 -->
+                            <button type="submit" class="btn btn-primary">確認付款</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 訂單摘要 -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title mb-0">訂單摘要</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>商品名稱</th>
+                                        <th>數量</th>
+                                        <th>單價</th>
+                                        <th>小計</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="orderItems">
+                                    <!-- 訂單項目將由JavaScript動態填充 -->
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="3" class="text-end fw-bold">總計</td>
+                                        <td class="fw-bold" id="grandTotal">$0.00</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <!-- 台灣地址資料 -->
+    <script src="./js/taiwan-address-data.js"></script>
+    <!-- 不在登入狀態，強制跳轉到登入畫面 -->
+    <script src="/js/authHandler.js"></script>
+    <!-- JavaScript -->
+    <script>
+        $(document).ready(function () {
+            // 載入動畫控制
+            const loadingControl = {
+                show() {
+                    $('.loading-spinner, .loading-overlay').show();
+                },
+                hide() {
+                    $('.loading-spinner, .loading-overlay').hide();
+                }
+            };
+
+            // 地址控制
+            const addressControl = {
+                initializeAddressSelectors() {
+                    const citySelect = $('#city');
+                    const districtSelect = $('#district');
+
+                    // 清空並添加預設選項
+                    citySelect.empty().append('<option value="">請選擇縣市</option>');
+
+                    // 添加縣市選項
+                    Object.keys(taiwanAddressData).forEach(city => {
+                        citySelect.append(`<option value="${city}">${city}</option>`);
+                    });
+
+                    // 縣市選擇變更事件
+                    citySelect.on('change', function () {
+                        const selectedCity = $(this).val();
+                        districtSelect.empty().append('<option value="">請選擇鄉鎮市區</option>');
+                        $('#zipcode').val('');
+
+                        if (!selectedCity) return;
+
+                        // 添加該縣市的所有鄉鎮市區
+                        const districts = taiwanAddressData[selectedCity];
+                        Object.keys(districts).forEach(district => {
+                            districtSelect.append(
+                                `<option value="${district}" data-zipcode="${districts[district]}">${district}</option>`
+                            );
+                        });
+                    });
+
+                    // 鄉鎮市區選擇變更事件
+                    districtSelect.on('change', function () {
+                        const selectedOption = $(this).find(':selected');
+                        $('#zipcode').val(selectedOption.data('zipcode') || '');
+                    });
+                }
+            };
+
+            // 購物車控制
+            const cartControl = {
+                async loadCartData() {
+                    loadingControl.show();
+                    try {
+                        const response = await fetch('http://localhost:8080/api/cart', {
+                            credentials: 'include'
+                        });
+                        if (!response.ok) throw new Error('載入購物車失敗');
+
+                        const cartData = await response.json();
+                        this.updateCartDisplay(cartData);
+                    } catch (error) {
+                        console.error('載入購物車錯誤:', error);
+                        alert('載入購物車資料失敗');
+                    } finally {
+                        loadingControl.hide();
+                    }
+                },
+
+                updateCartDisplay(data) {
+                    $('.cart-badge').text(data.pcs || 0);
+                    const tbody = $('#orderItems');
+                    tbody.empty();
+
+                    let grandTotal = 0;
+                    data.items.forEach(item => {
+                        const total = item.quantity * item.product_price;
+                        grandTotal += total;
+
+                        tbody.append(`
+                    <tr>
+                        <td>${item.product_name}</td>
+                        <td>${item.quantity}</td>
+                        <td>$${item.product_price}</td>
+                        <td>$${total}</td>
+                    </tr>
+                `);
+                    });
+
+                    $('#grandTotal').text(`$${grandTotal}`);
+                }
+            };
+
+            // 用戶控制
+            const userControl = {
+                async loadMemberInfo() {
+                    try {
+                        // 先檢查登入狀態
+                        const loginResponse = await fetch('http://localhost:8080/api/members/login', {
+                            credentials: 'include'
+                        });
+
+                        if (!loginResponse.ok) {
+                            throw new Error('尚未登入');
+                        }
+
+                        // 如果已登入，獲取完整會員資料
+                        const memberResponse = await fetch('http://localhost:8080/api/members', {
+                            credentials: 'include'
+                        });
+
+                        if (!memberResponse.ok) {
+                            throw new Error('載入會員資料失敗');
+                        }
+
+                        const data = await memberResponse.json();
+                        if (data) {
+                            this.updateMemberFields(data);
+                            sessionStorage.setItem('user', JSON.stringify(data));
+                            return data;
+                        }
+                    } catch (error) {
+                        console.error('載入會員資料錯誤:', error);
+                        const userStr = sessionStorage.getItem('user');
+                        if (userStr) {
+                            const userData = JSON.parse(userStr);
+                            this.updateMemberFields(userData);
+                            return userData;
+                        }
+                    }
+                    return null;
+                },
+
+                updateMemberFields(userData) {
+                    if (userData) {
+                        // 使用 Object.getOwnPropertyDescriptor 或直接訪問屬性
+                        const memberNo = String(userData.memberNo || '');  // 強制轉換成字串
+                        const memberName = String(userData.memberName || '');
+
+                        $('#memberNo').val(memberNo);
+                        $('#memberName').val(memberName);
+
+                        console.log('memberNo:', memberNo);  // 檢查值
+                    }
+                },
+
+                async checkLoginStatus() {
+                    try {
+                        const userStr = localStorage.getItem('user');
+                        if (userStr) {
+                            const userData = JSON.parse(userStr);
+                            if (userData && userData.memberName) {
+                                this.updateLoginUI(userData);
+                                this.updateMemberFields(userData);
+                                return;
+                            }
+                        }
+
+                        await this.loadMemberInfo();
+                    } catch (error) {
+                        this.handleLogout();
+                    }
+                },
+
+                updateLoginUI(userData) {
+                    $('#loginLink').addClass('d-none');
+                    $('#userMenu').removeClass('d-none');
+                    $('#userDisplayName').text(userData.memberName);
+                },
+
+                handleLogout() {
+                    sessionStorage.removeItem('user');
+                    localStorage.removeItem('user');
+                    $('#loginLink').removeClass('d-none');
+                    $('#userMenu').addClass('d-none');
+                    $('#memberNo, #memberName').val('');
+                },
+
+                initLogoutHandler() {
+                    $('#logoutBtn').on('click', async (e) => {
+                        e.preventDefault();
+                        try {
+                            const response = await fetch('http://localhost:8080/api/members/logout', {
+                                method: 'POST',
+                                credentials: 'include'
+                            });
+                            const data = await response.json();
+                            this.handleLogout();
+                            alert(data.message);
+                            window.location.href = 'index.html';
+                        } catch (error) {
+                            alert('登出失敗，請稍後再試');
+                        }
+                    });
+                }
+            };
+
+            // 表單控制
+            const formControl = {
+                initializeExpiryOptions() {
+                    const currentYear = new Date().getFullYear();
+                    const monthSelect = $('#expiryMonth');
+                    const yearSelect = $('#expiryYear');
+
+                    // 填充月份選項
+                    monthSelect.empty().append('<option value="">月</option>');
+                    for (let i = 1; i <= 12; i++) {
+                        const month = i.toString().padStart(2, '0');
+                        monthSelect.append(`<option value="${month}">${month}</option>`);
+                    }
+
+                    // 填充年份選項（當前年份往後 10 年）
+                    yearSelect.empty().append('<option value="">年</option>');
+                    for (let i = 0; i < 10; i++) {
+                        const year = currentYear + i;
+                        yearSelect.append(`<option value="${year}">${year}</option>`);
+                    }
+                },
+
+                initializeCreditCardInput() {
+                    $('.credit-card-input').on('input', function () {
+                        const maxLength = parseInt($(this).attr('maxlength'));
+                        if (this.value.length >= maxLength) {
+                            $(this).next().next('.credit-card-input').focus();
+                        }
+                    }).on('keypress', function (e) {
+                        if (e.which < 48 || e.which > 57) {
+                            e.preventDefault();
+                        }
+                    });
+                },
+
+                initializePhoneValidation() {
+                    const phoneInput = $('#phone');
+                    const isValidTaiwanPhone = (phone) => /^09[0-9]{8}$/.test(phone);
+
+                    phoneInput.on('input', function () {
+                        let value = $(this).val();
+                        value = value.replace(/\D/g, '');
+                        if (value.length > 10) {
+                            value = value.slice(0, 10);
+                        }
+                        $(this).val(value);
+                    });
+
+                    phoneInput.on('blur', function () {
+                        const value = $(this).val();
+                        if (value && !isValidTaiwanPhone(value)) {
+                            $(this).addClass('is-invalid').removeClass('is-valid');
+                        } else if (value) {
+                            $(this).addClass('is-valid').removeClass('is-invalid');
+                        } else {
+                            $(this).removeClass('is-valid is-invalid');
+                        }
+                    });
+                },
+
+                initializeFormSubmission() {
+                    $('#shippingForm').on('submit', async function (e) {
+                        e.preventDefault();
+                        loadingControl.show();
+
+                        try {
+                            // 獲取購物車資料
+                            const cartResponse = await fetch('http://localhost:8080/api/cart', {
+                                credentials: 'include'
+                            });
+
+                            if (!cartResponse.ok) {
+                                throw new Error('無法取得購物車資料');
+                            }
+
+                            const cartData = await cartResponse.json();
+
+                            // 如果購物車是空的就不建立訂單
+                            if (!cartData.items || cartData.items.length === 0) {
+                                throw new Error('購物車是空的，請先選購商品');
+                            }
+
+                            // 準備訂單資料
+                            const formData = {
+                                memberNo: parseInt($('#memberNo').val()),  // 轉為整數
+                                ordersReceiver: $('#name').val().trim(),
+                                receiverPhone: $('#phone').val().trim(),
+                                receiverZip: $('#zipcode').val().trim(),
+                                receiverAddress: $('#city').val() + $('#district').val() + $('#address').val().trim(),
+                                ordersTotal: parseInt($('#grandTotal').text().replace(/[^0-9]/g, '')),  // 移除非數字字元並轉為整數
+                                ordersDate: new Date().toISOString().split('T')[0],
+                                cartlist: cartData.items
+                            };
+
+                            // 發送訂單 API 請求
+                            const orderResponse = await fetch('http://localhost:8080/api/orders', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                credentials: 'include',
+                                body: JSON.stringify(formData)
+                            });
+
+                            if (!orderResponse.ok) {
+                                const errorData = await orderResponse.json();
+                                throw new Error(errorData.message || '訂單建立失敗');
+                            }
+
+
+                            // 重新讀取購物車狀態（可選）
+                            await cartControl.loadCartData();
+                            alert('訂單建立成功！');
+
+                            // 訂單成功後導向訂單查詢頁面
+                            window.location.href = 'myorders.html';
+
+                        } catch (error) {
+                            console.error('訂單處理錯誤:', error);
+                            alert(error.message);
+                        } finally {
+                            loadingControl.hide();
+                        }
+                    });
+                }
+            };
+
+            // 初始化所有功能
+            function initialize() {
+                userControl.checkLoginStatus();
+                userControl.initLogoutHandler();
+                formControl.initializeExpiryOptions();
+                formControl.initializeCreditCardInput();
+                formControl.initializePhoneValidation();
+                formControl.initializeFormSubmission();
+                addressControl.initializeAddressSelectors();
+                cartControl.loadCartData();
+            }
+
+            // 執行初始化
+            initialize();
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>書籍購物網站</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css"
+        rel="stylesheet">
+    <!-- 自定義CSS -->
+    <style>
+        /* 導航欄樣式 */
+        .navbar {
+            background-color: #4b49ac !important;
+        }
+
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+        }
+
+
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            padding: 2px 5px;
+            border-radius: 50%;
+            background: #dc3545;
+            color: white;
+            font-size: 12px;
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-link {
+            color: white !important;
+            margin-left: 15px;
+        }
+
+        /* 下拉選單樣式 */
+        .dropdown-menu {
+            background-color: white;
+            border: 1px solid rgba(0, 0, 0, .15);
+        }
+
+        .dropdown-item {
+            color: #212529;
+            padding: 8px 20px;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* 左側選單樣式 */
+        .sidebar {
+            background-color: #f8f9fa;
+            min-height: calc(100vh - 56px);
+            padding: 20px;
+            border-right: 1px solid #dee2e6;
+        }
+
+        .sidebar .nav-link {
+            color: white !important;
+            /* 白色文字 */
+            padding: 8px 16px;
+            margin: 4px 0;
+            border-radius: 4px;
+            background-color: #4b49ac;
+            /* 藍色背景 */
+        }
+
+        .sidebar .nav-link:hover {
+            background-color: #3f3e8f;
+            /* 滑鼠移過時的深藍色 */
+        }
+
+
+        /* RWD 響應式設計 */
+        @media (max-width: 768px) {
+
+
+            .navbar-nav {
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 導航欄 -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <!-- Logo -->
+            <a class="navbar-brand" href="./index.html">
+                <i class="bi bi-book"></i> Book Cart
+            </a>
+
+            <!-- 漢堡選單按鈕 -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- 導航內容 -->
+            <div class="collapse navbar-collapse" id="navbarContent">
+
+
+                <!-- 右側選單 -->
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="./shopping-cart.html">
+                            <i class="bi bi-cart3 fs-5"></i>
+                            <span class="cart-badge">0</span>
+                        </a>
+                    </li>
+                    <!-- 登入/使用者選單 -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link" href="./login.html" id="loginLink">
+                            Login
+                        </a>
+                        <!-- 下拉選單 (預設隱藏) -->
+                        <a class="nav-link dropdown-toggle d-none" href="#" id="userMenu" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <span id="userDisplayName"></span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                            <li><a class="dropdown-item" href="#" id="logoutBtn">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要內容區域 -->
+    <div class="container">
+        <!-- 在這裡添加頁面內容 -->
+        <div class="row">
+            <!-- 左側功能選單 -->
+            <div class="col-md-3 col-lg-2 sidebar">
+                <h5 class="mb-3">功能選單</h5>
+                <nav class="nav flex-column">
+                    <a class="nav-link active" href="#"><i class="bi bi-speedometer2"></i> 儀表板</a>
+                    <a class="nav-link" href="./productcategory-manage.html"><i class="bi bi-people"></i> 商品類別管理</a>
+                    <a class="nav-link" href="#"><i class="bi bi-box"></i> 商品管理</a>
+                    <a class="nav-link" href="#"><i class="bi bi-cart"></i> 訂單管理</a>
+                    <a class="nav-link" href="#"><i class="bi bi-gear"></i> 系統設定</a>
+                </nav>
+            </div>
+            <!-- 右側主要功能區 -->
+            <div class="col-md-9 col-lg-10">
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">修改會員資料</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="updateMemberForm">
+                            <!-- 基本資料 -->
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">會員編號</label>
+                                    <input type="text" class="form-control" id="memberNo" readonly>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">會員帳號</label>
+                                    <input type="text" class="form-control" id="memberAccount" readonly>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">會員名稱</label>
+                                    <input type="text" class="form-control" id="memberName" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">身分證字號</label>
+                                    <input type="text" class="form-control" id="memberId">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="memberEmail" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">電話</label>
+                                    <input type="text" class="form-control" id="memberPhone">
+                                </div>
+                            </div>
+                            <!-- 地址資料 -->
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">郵遞區號</label>
+                                    <input type="text" class="form-control" id="memberZip">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">地址</label>
+                                    <input type="text" class="form-control" id="memberAddress">
+                                </div>
+                            </div>
+                            <!-- 信用卡資料 -->
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">信用卡號</label>
+                                    <input type="text" class="form-control" id="cardNo">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">有效年</label>
+                                    <input type="text" class="form-control" id="cardYy">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">有效月</label>
+                                    <input type="text" class="form-control" id="cardMm">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">銀行代號</label>
+                                    <input type="text" class="form-control" id="cardId">
+                                </div>
+                            </div>
+                            <!-- 會員狀態 -->
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">會員狀態</label>
+                                    <select class="form-select" id="memberStatus" required>
+                                        <option value="0">停用</option>
+                                        <option value="1">一般會員</option>
+                                        <option value="2">管理者</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">註冊序號</label>
+                                    <input type="text" class="form-control" id="memberRegid" maxlength="400">
+                                </div>
+                            </div>
+
+                            <!-- 密碼 (新增) -->
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">密碼</label>
+                                    <input type="password" class="form-control" id="memberPassword"
+                                        placeholder="若不更改密碼，請留空">
+                                </div>
+                            </div>
+
+                            <!-- 照片上傳區：新增的功能區塊 -->
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">會員照片</label>
+                                    <!-- 照片預覽 -->
+                                    <img id="memberPhotoPreview" alt="會員照片" class="d-block mb-2" width="150"
+                                        height="150" style="object-fit: cover;">
+                                    <!-- 上傳檔案 -->
+                                    <input type="file" class="form-control" id="photoInput" accept="image/*">
+                                </div>
+                            </div>
+
+                            <!-- 按鈕區 -->
+                            <div class="row">
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary me-2">
+                                        <i class="bi bi-check-circle"></i> 送出修改
+                                    </button>
+                                    <button type="button" class="btn btn-secondary"
+                                        onclick="window.location.href='./member-manage.html'">
+                                        <i class="bi bi-x-circle"></i> 取消
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <!-- 後台頁面管制用 -->
+    <!-- <script src="/js/authHandler.js"></script> -->
+    <!-- JavaScript -->
+    <script>
+        $(document).ready(function () {
+            // 從URL取得會員編號
+            const urlParams = new URLSearchParams(window.location.search);
+            const memberNo = urlParams.get('memberNo');
+
+            // 如果有會員編號，則載入會員資料
+            if (memberNo) {
+                loadMemberData(memberNo);
+            }
+
+            // 處理表單提交
+            $('#updateMemberForm').on('submit', function (e) {
+                e.preventDefault();
+                if (validateForm()) {
+                    updateMember();
+                }
+            });
+
+            // 處理照片上傳
+            $('#photoInput').on('change', function (e) {
+                const file = e.target.files[0];
+                const memberNo = $('#memberNo').val();
+
+                if (file) {
+                    // 檢查檔案類型
+                    if (!file.type.match('image.*')) {
+                        alert('請上傳圖片檔案');
+                        this.value = ''; // 清空檔案輸入
+                        return;
+                    }
+
+                    // 檢查檔案大小 (5MB)
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert('檔案大小不能超過5MB');
+                        this.value = ''; // 清空檔案輸入
+                        return;
+                    }
+
+                    // 立即預覽選擇的圖片
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        $('#memberPhotoPreview').attr('src', e.target.result);
+                    };
+                    reader.readAsDataURL(file);
+
+                    // 上傳照片
+                    uploadMemberPhoto(memberNo, file);
+                }
+            });
+
+            // 初始化照片預覽的錯誤處理
+            $('#memberPhotoPreview').on('error', function () {
+                $(this).attr('src', 'https://via.placeholder.com/150');
+            });
+
+            // 處理登出
+            $('#logoutBtn').on('click', function (e) {
+                e.preventDefault();
+
+                fetch('http://localhost:8080/api/members/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        localStorage.removeItem('user');
+                        updateCartBadge(0);
+                        $('#loginLink').removeClass('d-none');
+                        $('#userMenu').addClass('d-none');
+                        alert(data.message);
+                        window.location.href = './login.html'; // 登出後導向登入頁面
+                    })
+                    .catch(error => {
+                        console.error('登出錯誤:', error);
+                        alert('登出失敗，請稍後再試');
+                    });
+            });
+
+            // 初始化頁面
+            checkLoginStatus();
+            loadCartContents();
+        });
+
+        // 檢查登入狀態
+        function checkLoginStatus() {
+            const userStr = localStorage.getItem('user');
+            const user = userStr ? JSON.parse(userStr) : null;
+            if (user && user.memberName) {
+                $('#loginLink').addClass('d-none');
+                $('#userMenu').removeClass('d-none');
+                $('#userDisplayName').text(user.memberName);
+            } else {
+                $('#loginLink').removeClass('d-none');
+                $('#userMenu').addClass('d-none');
+            }
+        }
+
+        // 更新購物車數量顯示
+        function updateCartBadge(count) {
+            $('.cart-badge').text(count);
+        }
+
+        // 載入購物車內容
+        function loadCartContents() {
+            fetch('http://localhost:8080/api/cart', {
+                method: 'GET',
+                credentials: 'include'
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('載入購物車失敗');
+                    return response.json();
+                })
+                .then(data => {
+                    updateCartBadge(data.pcs || 0);
+                })
+                .catch(error => {
+                    console.error('載入購物車失敗:', error);
+                    updateCartBadge(0);
+                });
+        }
+
+        // 上傳會員照片
+        function uploadMemberPhoto(memberNo, photoFile) {
+            const formData = new FormData();
+            formData.append('photo', photoFile);
+
+            return fetch(`http://localhost:8080/api/members/${memberNo}/photo`, {
+                method: 'POST',
+                body: formData,
+                credentials: 'include'
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('上傳照片失敗');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('照片上傳成功:', data);
+                    // 刷新照片預覽（加入時間戳避免快取）
+                    const timestamp = new Date().getTime();
+                    $('#memberPhotoPreview').attr('src',
+                        `http://localhost:8080/api/members/${memberNo}/photo?t=${timestamp}`);
+                    alert('照片上傳成功');
+                })
+                .catch(error => {
+                    console.error('上傳照片失敗:', error);
+                    alert('上傳照片失敗，請稍後再試');
+                    // 重設預覽圖為預設圖片
+                    $('#memberPhotoPreview').attr('src', 'https://via.placeholder.com/150');
+                });
+        }
+
+        // 載入會員資料
+        function loadMemberData(memberNo) {
+            fetch(`http://localhost:8080/api/members/${memberNo}`, {
+                credentials: 'include'
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('載入會員資料失敗');
+                    }
+                    return response.json();
+                })
+                .then(member => {
+                    // 填充表單資料
+                    $('#memberNo').val(member.memberNo);
+                    $('#memberAccount').val(member.memberAccount);
+                    $('#memberName').val(member.memberName);
+                    $('#memberId').val(member.memberId);
+                    $('#memberEmail').val(member.memberEmail);
+                    $('#memberPhone').val(member.memberPhone);
+                    $('#memberZip').val(member.memberZip);
+                    $('#memberAddress').val(member.memberAddress);
+                    $('#cardNo').val(member.cardNo);
+                    $('#cardYy').val(member.cardYy);
+                    $('#cardMm').val(member.cardMm);
+                    $('#cardId').val(member.cardId);
+                    $('#memberStatus').val(member.memberStatus);
+                    $('#memberRegid').val(member.memberRegid);
+
+                    // 更新照片預覽（加入時間戳和錯誤處理）
+                    const timestamp = new Date().getTime();
+                    const photoUrl = `http://localhost:8080/api/members/${member.memberNo}/photo?t=${timestamp}`;
+                    $('#memberPhotoPreview')
+                        .attr('src', photoUrl)
+                        .on('error', function () {
+                            $(this).attr('src', 'https://via.placeholder.com/150');
+                        });
+                })
+                .catch(error => {
+                    console.error('載入會員資料失敗:', error);
+                    alert('載入會員資料失敗，請稍後再試');
+                });
+        }
+
+        // 更新會員資料
+        function updateMember() {
+            const memberNo = $('#memberNo').val();
+            const formData = {
+                memberNo: memberNo,
+                memberAccount: $('#memberAccount').val(),
+                memberName: $('#memberName').val().trim(),
+                memberId: $('#memberId').val().trim(),
+                memberEmail: $('#memberEmail').val().trim(),
+                memberPhone: $('#memberPhone').val().trim(),
+                memberZip: $('#memberZip').val().trim(),
+                memberAddress: $('#memberAddress').val().trim(),
+                cardNo: $('#cardNo').val().trim(),
+                cardYy: $('#cardYy').val().trim(),
+                cardMm: $('#cardMm').val().trim(),
+                cardId: $('#cardId').val().trim(),
+                memberStatus: parseInt($('#memberStatus').val()),
+                memberRegid: $('#memberRegid').val(),
+                memberPassword: $('#memberPassword').val().trim() || undefined
+            };
+
+            fetch(`http://localhost:8080/api/members/${memberNo}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+                credentials: 'include'
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('更新會員資料失敗');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    alert('會員資料更新成功');
+                    window.location.href = './member-manage.html';
+                })
+                .catch(error => {
+                    console.error('更新會員資料失敗:', error);
+                    alert('更新會員資料失敗，請稍後再試');
+                });
+        }
+
+        // 表單驗證
+        function validateForm() {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const phoneRegex = /^[0-9-]{8,}$/;
+            const idRegex = /^[A-Z][12]\d{8}$/;
+            const zipRegex = /^\d{3,5}$/;
+            const cardNoRegex = /^\d{16}$/;
+
+            // 必填欄位驗證
+            if (!$('#memberName').val().trim()) {
+                alert('請輸入會員名稱');
+                $('#memberName').focus();
+                return false;
+            }
+
+            // Email 驗證
+            const email = $('#memberEmail').val().trim();
+            if (!email || !emailRegex.test(email)) {
+                alert('請輸入有效的 Email 格式');
+                $('#memberEmail').focus();
+                return false;
+            }
+
+            // 電話格式驗證（選填）
+            const phone = $('#memberPhone').val().trim();
+            if (phone && !phoneRegex.test(phone)) {
+                alert('請輸入有效的電話號碼格式');
+                $('#memberPhone').focus();
+                return false;
+            }
+
+            // 身分證字號驗證（選填）
+            const id = $('#memberId').val().trim();
+            if (id && !idRegex.test(id)) {
+                alert('請輸入有效的身分證字號格式');
+                $('#memberId').focus();
+                return false;
+            }
+
+            // 郵遞區號驗證（選填）
+            const zip = $('#memberZip').val().trim();
+            if (zip && !zipRegex.test(zip)) {
+                alert('請輸入有效的郵遞區號格式');
+                $('#memberZip').focus();
+                return false;
+            }
+
+            // 信用卡相關驗證（選填）
+            const cardNo = $('#cardNo').val().trim();
+            if (cardNo) {
+                if (!cardNoRegex.test(cardNo)) {
+                    alert('請輸入有效的信用卡號格式（16位數字）');
+                    $('#cardNo').focus();
+                    return false;
+                }
+
+                // 驗證有效年月
+                const cardYy = $('#cardYy').val().trim();
+                const cardMm = $('#cardMm').val().trim();
+                if ((cardYy && !cardMm) || (!cardYy && cardMm)) {
+                    alert('信用卡有效年月必須同時填寫');
+                    return false;
+                }
+            }
+
+            return true;
+        }
+    </script>
+</body>
+
+</html>
