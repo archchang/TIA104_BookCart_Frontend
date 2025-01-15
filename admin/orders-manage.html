@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>書籍購物網站</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css"
+        rel="stylesheet">
+    <!-- 自定義CSS -->
+    <style>
+        /* 導航欄樣式 */
+        .navbar {
+            background-color: #4b49ac !important;
+        }
+
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+        }
+
+
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            padding: 2px 5px;
+            border-radius: 50%;
+            background: #dc3545;
+            color: white;
+            font-size: 12px;
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-link {
+            color: white !important;
+            margin-left: 15px;
+        }
+
+        /* 下拉選單樣式 */
+        .dropdown-menu {
+            background-color: white;
+            border: 1px solid rgba(0, 0, 0, .15);
+        }
+
+        .dropdown-item {
+            color: #212529;
+            padding: 8px 20px;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* 左側選單樣式 */
+        .sidebar {
+            background-color: #f8f9fa;
+            min-height: calc(100vh - 56px);
+            padding: 20px;
+            border-right: 1px solid #dee2e6;
+        }
+
+        .sidebar .nav-link {
+            color: white !important;
+            /* 白色文字 */
+            padding: 8px 16px;
+            margin: 4px 0;
+            border-radius: 4px;
+            background-color: #4b49ac;
+            /* 藍色背景 */
+        }
+
+        .sidebar .nav-link:hover {
+            background-color: #3f3e8f;
+            /* 滑鼠移過時的深藍色 */
+        }
+
+        /* 訂單管理相關樣式 */
+        .order-row {
+            cursor: pointer;
+        }
+
+        .order-row:hover {
+            background-color: rgba(75, 73, 172, 0.05);
+        }
+
+        .order-details {
+            display: none;
+        }
+
+        /* 訂單明細相關樣式 */
+        .order-details {
+            background-color: #f8f9fa;
+        }
+
+        .order-details td {
+            padding: 0 !important;
+        }
+
+        .order-details .table-sm {
+            margin-bottom: 0;
+        }
+
+        .order-details .table-sm td,
+        .order-details .table-sm th {
+            padding: 0.5rem;
+        }
+
+        /* 狀態標籤樣式 */
+        .status-badge {
+            padding: 0.25em 0.75em;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+        }
+
+        /* 下載按鈕樣式 */
+        .btn-download {
+            min-width: 120px;
+        }
+
+        /* Toast 提示樣式 */
+        .toast {
+            z-index: 1056;
+            /* 確保顯示在最上層 */
+        }
+
+        /* Loading 提示樣式 */
+        .loading-toast {
+            z-index: 1056;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+
+        /* 動畫效果 */
+        .fade-enter {
+            opacity: 0;
+            transition: opacity 0.3s ease-in;
+        }
+
+        .fade-enter-active {
+            opacity: 1;
+        }
+
+        /* RWD 響應式設計 */
+        @media (max-width: 768px) {
+            .table-responsive {
+                font-size: 0.875rem;
+            }
+
+            .card-body {
+                padding: 0.75rem;
+            }
+
+            .navbar-nav {
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 導航欄 -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <!-- Logo -->
+            <a class="navbar-brand" href="./index.html">
+                <i class="bi bi-book"></i> Book Cart
+            </a>
+
+            <!-- 漢堡選單按鈕 -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- 導航內容 -->
+            <div class="collapse navbar-collapse" id="navbarContent">
+
+
+                <!-- 右側選單 -->
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="./shopping-cart.html">
+                            <i class="bi bi-cart3 fs-5"></i>
+                            <span class="cart-badge">0</span>
+                        </a>
+                    </li>
+                    <!-- 登入/使用者選單 -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link" href="./login.html" id="loginLink">
+                            Login
+                        </a>
+                        <!-- 下拉選單 (預設隱藏) -->
+                        <a class="nav-link dropdown-toggle d-none" href="#" id="userMenu" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <span id="userDisplayName"></span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                            <li><a class="dropdown-item" href="#" id="logoutBtn">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要內容區域 -->
+    <div class="container">
+        <!-- 在這裡添加頁面內容 -->
+        <div class="row">
+            <!-- 左側功能選單 -->
+            <div class="col-md-3 col-lg-2 sidebar">
+                <h5 class="mb-3">功能選單</h5>
+                <nav class="nav flex-column">
+                    <a class="nav-link active" href="./admin-index.html"><i class="bi bi-speedometer2"></i> 儀表板</a>
+                    <a class="nav-link" href="./productcategory-manage.html"><i class="bi bi-box"></i> 商品類別管理</a>
+                    <a class="nav-link" href="./product-manage.html"><i class="bi bi-cart"></i> 商品管理</a>
+                    <a class="nav-link" href="./member-manage.html"><i class="bi bi-people"></i> 會員管理</a>
+                    <a class="nav-link" href="./orders-manage.html"><i class="bi bi-clipboard-data"></i> 訂單管理</a>
+                </nav>
+            </div>
+            <!-- 右側主要功能區 -->
+            <div class="col-md-9 col-lg-10">
+                <!-- 搜尋區塊 -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">訂單搜尋</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="searchForm">
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="form-label">訂單編號</label>
+                                    <input type="number" class="form-control" id="ordersNo">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">會員編號</label>
+                                    <input type="number" class="form-control" id="memberNo">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">起始日期</label>
+                                    <input type="date" class="form-control" id="startDate">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">結束日期</label>
+                                    <input type="date" class="form-control" id="endDate">
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <button type="submit" class="btn btn-primary">搜尋</button>
+                                <button type="button" class="btn btn-secondary ms-2" id="resetBtn">重置</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 下載按鈕區塊 -->
+                <div class="mb-3">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown">
+                            下載報表
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" id="downloadPdf">下載 PDF</a></li>
+                            <li><a class="dropdown-item" href="#" id="downloadExcel">下載 Excel</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 訂單列表區塊 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">訂單列表</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>訂單編號</th>
+                                        <th>會員編號</th>
+                                        <th>收件人</th>
+                                        <th>訂單金額</th>
+                                        <th>訂單日期</th>
+                                        <th>訂單狀態</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ordersList">
+                                    <!-- 訂單資料會動態插入這裡 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <!-- 後台頁面管制用 -->
+    <!-- <script src="/js/authHandler.js"></script> -->
+    <!-- JavaScript -->
+    <script>
+        $(document).ready(function () {
+            // 檢查用戶登入狀態
+            function checkLoginStatus() {
+                const userStr = localStorage.getItem('user');
+                const user = userStr ? JSON.parse(userStr) : null;
+                if (user && user.memberName) {
+                    // 隱藏登入連結，顯示用戶選單
+                    $('#loginLink').addClass('d-none');
+                    $('#userMenu').removeClass('d-none');
+                    $('#userDisplayName').text(user.memberName);
+                } else {
+                    // 顯示登入連結，隱藏用戶選單
+                    $('#loginLink').removeClass('d-none');
+                    $('#userMenu').addClass('d-none');
+                }
+            }
+
+            // 更新購物車數量顯示函數
+            function updateCartBadge(count) {
+                $('.cart-badge').text(count);
+            }
+
+            // 載入購物車內容函數
+            function loadCartContents() {
+                fetch('http://localhost:8080/api/cart', {
+                    method: 'GET',
+                    credentials: 'include'
+                })
+                    .then(response => {
+                        if (!response.ok) throw new Error('載入購物車失敗');
+                        return response.json();
+                    })
+                    .then(data => {
+                        // 更新購物車數量標記
+                        updateCartBadge(data.pcs || 0);
+                    })
+                    .catch(error => {
+                        console.error('載入購物車失敗:', error);
+                        updateCartBadge(0);
+                    });
+            }
+
+
+
+            // 處理登出
+            $('#logoutBtn').on('click', function (e) {
+                e.preventDefault();
+
+                fetch('http://localhost:8080/api/members/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        // 清除 sessionStorage
+                        localStorage.removeItem('user');
+
+                        // 更新購物車數量為0
+                        updateCartBadge(0);
+
+                        // 更新導航欄顯示
+                        $('#loginLink').removeClass('d-none');
+                        $('#userMenu').addClass('d-none');
+
+                        // 顯示成功訊息
+                        alert(data.message);
+                        // 重新導向到首頁
+                        //window.location.href = 'index.html';
+                    })
+                    .catch(error => {
+                        console.error('登出錯誤:', error);
+                        alert('登出失敗，請稍後再試');
+                    });
+            });
+
+            // 載入所有訂單
+            function loadOrders(searchParams = {}) {
+                let url = 'http://localhost:8080/api/orders/search';
+                if (Object.keys(searchParams).length > 0) {
+                    const params = new URLSearchParams(searchParams);
+                    url += '?' + params.toString();
+                }
+
+                fetch(url, {
+                    method: 'GET',
+                    credentials: 'include'
+                })
+                    .then(response => response.json())
+                    .then(orders => {
+                        const ordersList = $('#ordersList');
+                        ordersList.empty();
+
+                        orders.forEach(order => {
+                            const statusText = getStatusText(order.orders_status);
+                            const statusClass = getStatusClass(order.orders_status);
+
+                            const row = $(`
+                    <tr class="order-row" data-order-no="${order.orders_no}">
+                        <td>${order.orders_no}</td>
+                        <td>${order.member_no}</td>
+                        <td>${order.orders_receiver}</td>
+                        <td>$${order.orders_total.toLocaleString()}</td>
+                        <td>${formatDate(order.orders_date)}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    </tr>
+                `);
+
+                            ordersList.append(row);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('載入訂單失敗:', error);
+                        alert('載入訂單失敗，請稍後再試');
+                    });
+            }
+
+            // 載入訂單明細
+            function loadOrderDetails(ordersNo, detailsRow) {
+                fetch(`http://localhost:8080/api/orders/${ordersNo}/details`, {
+                    method: 'GET',
+                    credentials: 'include'
+                })
+                    .then(response => response.json())
+                    .then(details => {
+                        const detailsBody = detailsRow.find('tbody');
+                        detailsBody.empty();
+
+                        details.forEach(detail => {
+                            const subtotal = detail.quantity * detail.product_price;
+                            const row = $(`
+                    <tr>
+                        <td>${detail.product_no}</td>
+                        <td>${detail.product_name}</td>
+                        <td>${detail.quantity}</td>
+                        <td>$${detail.product_price.toLocaleString()}</td>
+                        <td>$${subtotal.toLocaleString()}</td>
+                    </tr>
+                `);
+                            detailsBody.append(row);
+                        });
+
+                        detailsRow.slideDown();
+                    })
+                    .catch(error => {
+                        console.error('載入訂單明細失敗:', error);
+                        alert('載入訂單明細失敗，請稍後再試');
+                    });
+            }
+
+            // 處理訂單列表點擊事件
+            $('#ordersList').on('click', '.order-row', function () {
+                const ordersNo = $(this).data('order-no');
+                const existingDetailsRow = $(this).next('.order-details');
+
+                // 如果已經有明細列，則切換顯示/隱藏
+                if (existingDetailsRow.length > 0) {
+                    existingDetailsRow.toggle();
+                    return;
+                }
+
+                // 創建新的明細列
+                const detailsRow = $(`
+        <tr class="order-details bg-light">
+            <td colspan="6">
+                <div class="p-3">
+                    <h6 class="mb-3">訂單明細</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>商品編號</th>
+                                    <th>商品名稱</th>
+                                    <th>數量</th>
+                                    <th>單價</th>
+                                    <th>小計</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- 明細會動態插入這裡 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    `);
+
+                // 插入明細列並載入數據
+                $(this).after(detailsRow);
+
+                // 載入訂單明細
+                fetch(`http://localhost:8080/api/orders/${ordersNo}/details`, {
+                    method: 'GET',
+                    credentials: 'include'
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('載入訂單明細失敗');
+                        }
+                        return response.json();
+                    })
+                    .then(details => {
+                        const tbody = detailsRow.find('tbody');
+                        tbody.empty();
+
+                        details.forEach(detail => {
+                            const subtotal = detail.quantity * detail.product_price;
+                            tbody.append(`
+                <tr>
+                    <td>${detail.product_no}</td>
+                    <td>${detail.product_name}</td>
+                    <td>${detail.quantity}</td>
+                    <td>$${detail.product_price.toLocaleString()}</td>
+                    <td>$${subtotal.toLocaleString()}</td>
+                </tr>
+            `);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('載入訂單明細失敗:', error);
+                        detailsRow.find('.p-3').html(`
+            <div class="alert alert-danger">
+                載入訂單明細失敗，請稍後再試
+            </div>
+        `);
+                    });
+            });
+
+            // 處理搜尋表單提交
+            $('#searchForm').on('submit', function (e) {
+                e.preventDefault();
+
+                const searchParams = {
+                    ordersNo: $('#ordersNo').val() || null,
+                    memberNo: $('#memberNo').val() || null,
+                    startDate: $('#startDate').val() || null,
+                    endDate: $('#endDate').val() || null
+                };
+
+                // 移除空值
+                Object.keys(searchParams).forEach(key =>
+                    searchParams[key] === null && delete searchParams[key]
+                );
+
+                loadOrders(searchParams);
+            });
+
+            // 處理重置按鈕點擊
+            $('#resetBtn').on('click', function () {
+                $('#searchForm')[0].reset();
+                loadOrders();
+            });
+
+            // 處理下載按鈕點擊事件
+            $('#downloadExcel, #downloadPdf').on('click', async function (e) {
+                e.preventDefault();
+                const type = $(this).attr('id').includes('Excel') ? 'excel' : 'pdf';
+                const loadingToast = showLoadingToast(`正在產生${type === 'excel' ? 'Excel' : 'PDF'}報表...`);
+
+                try {
+                    const response = await fetch(`http://localhost:8080/api/orders/export/${type}`, {
+                        method: 'GET',
+                        credentials: 'include'
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`下載失敗: ${response.status}`);
+                    }
+
+                    // 從回應標頭取得檔案資訊
+                    const contentType = response.headers.get('Content-Type');
+                    const contentDisposition = response.headers.get('Content-Disposition');
+
+                    // 取得檔案內容
+                    const blob = await response.blob();
+                    if (blob.size === 0) {
+                        throw new Error('下載的檔案為空');
+                    }
+
+                    // 依據後端回傳的 Content-Type 建立新的 blob
+                    const blobWithType = new Blob([blob], { type: contentType });
+
+                    // 從 Content-Disposition 解析檔名
+                    let fileName = 'orders_report';
+                    if (contentDisposition && contentDisposition.includes('filename=')) {
+                        const fileNameMatch = contentDisposition.match(/filename=(.+)/);
+                        if (fileNameMatch) {
+                            try {
+                                fileName = decodeURIComponent(fileNameMatch[1].trim().replace(/["']/g, ''));
+                            } catch (e) {
+                                console.warn('檔名解碼失敗:', e);
+                                fileName = `orders_report.${type === 'excel' ? 'xlsx' : 'pdf'}`;
+                            }
+                        }
+                    } else {
+                        fileName = `orders_report.${type === 'excel' ? 'xlsx' : 'pdf'}`;
+                    }
+
+                    // 建立並觸發下載
+                    const url = window.URL.createObjectURL(blobWithType);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+
+                    // 使用 try-catch 包裝下載操作
+                    try {
+                        a.click();
+                        await new Promise(resolve => setTimeout(resolve, 100)); // 確保下載開始
+                    } catch (e) {
+                        throw new Error('下載觸發失敗');
+                    } finally {
+                        // 清理資源
+                        window.URL.revokeObjectURL(url);
+                        document.body.removeChild(a);
+                    }
+
+                    hideLoadingToast(loadingToast);
+                } catch (error) {
+                    console.error('下載失敗:', error);
+                    hideLoadingToast(loadingToast);
+                    showErrorToast(`下載失敗：${error.message || '請稍後再試'}`);
+                }
+            });
+
+            // 顯示載入中提示
+            function showLoadingToast(message) {
+                return $(`
+            <div class="position-fixed top-50 start-50 translate-middle p-3 bg-white rounded shadow-sm">
+                <div class="d-flex align-items-center">
+                    <div class="spinner-border text-primary me-2" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <span>${message}</span>
+                </div>
+            </div>
+        `).appendTo('body');
+            }
+
+            // 隱藏載入中提示
+            function hideLoadingToast(toast) {
+                toast.remove();
+            }
+
+            // 顯示錯誤提示
+            function showErrorToast(message) {
+                const toast = $(`
+            <div class="toast position-fixed top-50 start-50 translate-middle bg-danger text-white" role="alert">
+                <div class="toast-body">
+                    <i class="bi bi-exclamation-circle me-2"></i>
+                    ${message}
+                </div>
+            </div>
+        `).appendTo('body');
+
+                const bsToast = new bootstrap.Toast(toast[0], {
+                    delay: 3000
+                });
+                bsToast.show();
+
+                toast.on('hidden.bs.toast', function () {
+                    toast.remove();
+                });
+            }
+
+            // 工具函數：格式化日期
+            function formatDate(dateStr) {
+                const date = new Date(dateStr);
+                return date.toLocaleDateString('zh-TW');
+            }
+
+            // 工具函數：取得狀態文字
+            function getStatusText(status) {
+                const statusMap = {
+                    1: '待處理',
+                    2: '處理中',
+                    3: '已出貨',
+                    4: '已送達',
+                    5: '已取消'
+                };
+                return statusMap[status] || '未知狀態';
+            }
+
+            // 工具函數：取得狀態樣式類別
+            function getStatusClass(status) {
+                const classMap = {
+                    1: 'bg-warning text-dark',
+                    2: 'bg-info text-white',
+                    3: 'bg-primary text-white',
+                    4: 'bg-success text-white',
+                    5: 'bg-danger text-white'
+                };
+                return classMap[status] || 'bg-secondary text-white';
+            }
+
+            // 頁面載入時載入所有訂單
+            loadOrders();
+            // 頁面載入時執行
+            checkLoginStatus();
+            // 載入購物車內容
+            loadCartContents();
+        });
+    </script>
+</body>
+
+</html>
