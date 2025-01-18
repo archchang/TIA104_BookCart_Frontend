@@ -245,7 +245,9 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                             <li><a class="dropdown-item" href="./member-profile.html">會員中心</a></li>
-                            <li><a class="dropdown-item" href="#" id="logoutBtn">登出</a></li>
+                            <li><a class="dropdown-item" href="./member-orders.html">我的訂單</a></li>
+                            <li><a class="dropdown-item" href="./chat-room.html">聊天室</a></li>
+                            <li><a class="dropdown-item" href="#" id="logoutBtn">Logout</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -317,6 +319,7 @@
         </div>
     </div>
 
+    <script src="./js/config.js"></script>
     <!-- jQuery -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
     <!-- Bootstrap JS -->
@@ -410,7 +413,7 @@
 
         // 載入購物車內容函數
         function loadCartContents() {
-            fetch('http://localhost:8080/api/cart', {
+            fetch(`${BASE_URL}/api/cart`, {
                 method: 'GET',
                 credentials: 'include'
             })
@@ -432,7 +435,7 @@
         function handleLogout(e) {
             e.preventDefault();
 
-            fetch('http://localhost:8080/api/members/logout', {
+            fetch(`${BASE_URL}/api/members/logout`, {
                 method: 'POST',
                 credentials: 'include'
             })
@@ -548,7 +551,7 @@
                 memberPassword: $('#memberPassword').val()
             };
 
-            fetch('http://localhost:8080/api/members/register', {
+            fetch(`${BASE_URL}/api/members/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -584,7 +587,7 @@
 
         // 搜尋商品函數
         function searchProducts(searchText) {
-            fetch(`http://localhost:8080/api/products/search?name=${encodeURIComponent(searchText)}`)
+            fetch(`${BASE_URL}/api/products/search?name=${encodeURIComponent(searchText)}`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('搜尋失敗');

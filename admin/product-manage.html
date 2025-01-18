@@ -165,6 +165,9 @@
                             <span id="userDisplayName"></span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                            <li><a class="dropdown-item" href="./member-profile.html">會員中心</a></li>
+                            <li><a class="dropdown-item" href="./member-orders.html">我的訂單</a></li>
+                            <li><a class="dropdown-item" href="./chat-room.html">聊天室</a></li>
                             <li><a class="dropdown-item" href="#" id="logoutBtn">Logout</a></li>
                         </ul>
                     </li>
@@ -256,6 +259,7 @@
         </div>
     </div>
 
+    <script src="/js/config.js"></script>
     <!-- jQuery -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
     <!-- Bootstrap JS -->
@@ -288,7 +292,7 @@
 
             // 載入購物車內容函數
             function loadCartContents() {
-                fetch('http://localhost:8080/api/cart', {
+                fetch(`${BASE_URL}/api/cart`, {
                     method: 'GET',
                     credentials: 'include'
                 })
@@ -312,7 +316,7 @@
             // 統一的載入類別函數
             async function loadCategories() {
                 try {
-                    const response = await fetch('http://localhost:8080/api/categories', {
+                    const response = await fetch(`${BASE_URL}/api/categories`, {
                         method: 'GET',
                         credentials: 'include'
                     });
@@ -358,7 +362,7 @@
             // 載入所有商品函數
             async function loadProducts() {
                 try {
-                    const response = await fetch('http://localhost:8080/api/products', {
+                    const response = await fetch(`${BASE_URL}/api/products`, {
                         method: 'GET',
                         credentials: 'include'
                     });
@@ -381,7 +385,7 @@
                     const row = `
                 <tr>
                     <td>
-                        <img src="http://localhost:8080/api/products/${product.product_no}/image" 
+                        <img src="${BASE_URL}/api/products/${product.product_no}/image" 
                              alt="${product.product_name}" 
                              class="product-img">
                     </td>
@@ -433,7 +437,7 @@
                 // 顯示確認對話框
                 if (confirm('確定要刪除此商品嗎？')) {
                     // 呼叫刪除 API
-                    fetch(`http://localhost:8080/api/products/${productNo}`, {
+                    fetch(`${BASE_URL}/api/products/${productNo}`, {
                         method: 'DELETE',
                         credentials: 'include'
                     })
@@ -508,11 +512,11 @@
                             alert('請輸入商品編號');
                             return;
                         }
-                        url = `http://localhost:8080/api/products/${searchValue}`;
+                        url = `${BASE_URL}/api/products/${searchValue}`;
                         break;
                     case 'category':
                         searchValue = $('#categorySelect').val();
-                        url = `http://localhost:8080/api/products/category/${searchValue}`;
+                        url = `${BASE_URL}/api/products/category/${searchValue}`;
                         break;
                     case 'keyword':
                         searchValue = $('#searchInput').val().trim();
@@ -520,7 +524,7 @@
                             alert('請輸入關鍵字');
                             return;
                         }
-                        url = `http://localhost:8080/api/products/search?name=${encodeURIComponent(searchValue)}`;
+                        url = `${BASE_URL}/api/products/search?name=${encodeURIComponent(searchValue)}`;
                         break;
                 }
 
@@ -544,7 +548,7 @@
             $('#logoutBtn').on('click', function (e) {
                 e.preventDefault();
 
-                fetch('http://localhost:8080/api/members/logout', {
+                fetch(`${BASE_URL}/api/members/logout`, {
                     method: 'POST',
                     credentials: 'include'
                 })

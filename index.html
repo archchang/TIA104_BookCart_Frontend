@@ -369,7 +369,7 @@
             </div>
 
             <!-- 商品列表區域 -->
-            <div class="col-md-9 col-lg-10">
+            <div class="col-md-8 col-lg-9">
                 <div class="container-fluid mt-3">
                     <!-- 載入中提示 -->
                     <div id="loading" class="text-center d-none">
@@ -392,6 +392,7 @@
         </div>
     </div>
 
+    <script src="./js/config.js"></script>
     <!-- jQuery -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
     <!-- Bootstrap JS -->
@@ -447,7 +448,7 @@
             $('#logoutBtn').on('click', function (e) {
                 e.preventDefault();
 
-                fetch('http://localhost:8080/api/members/logout', {
+                fetch(`${BASE_URL}/api/members/logout`, {
                     method: 'POST',
                     credentials: 'include'
                 })
@@ -473,7 +474,7 @@
 
             // 獲取分類列表
             function fetchCategories() {
-                fetch('http://localhost:8080/api/categories')
+                fetch(`${BASE_URL}/api/categories`)
                     .then(response => {
                         if (!response.ok) {
                             throw new Error('分類載入失敗');
@@ -515,14 +516,14 @@
 
             // 獲取商品列表
             function fetchProducts(categoryId) {
-                let url = 'http://localhost:8080/api/products';
+                let url = `${BASE_URL}/api/products`;
 
                 // 根據分類ID構建URL
                 if (categoryId && categoryId !== 'all') {
                     // 從儲存的分類數據中找到對應的分類名稱
                     const category = categories.find(c => c.category_no.toString() === categoryId.toString());
                     if (category) {
-                        url = `http://localhost:8080/api/products/category/${category.category_name}`;
+                        url = `${BASE_URL}/api/products/category/${category.category_name}`;
                     }
                 }
 
@@ -558,7 +559,7 @@
                 `);
 
                 // 使用 Fetch API 發送搜尋請求
-                fetch(`http://localhost:8080/api/products/search?name=${encodeURIComponent(searchText)}`)
+                fetch(`${BASE_URL}/api/products/search?name=${encodeURIComponent(searchText)}`)
                     .then(response => {
                         if (!response.ok) {
                             throw new Error('搜尋失敗');
@@ -608,7 +609,7 @@
                 filteredProducts.forEach(product => {
                     const card = `
                         <div class="card product-card">
-                            <img src="http://localhost:8080/api/products/${product.product_no}/image" 
+                            <img src="${BASE_URL}/api/products/${product.product_no}/image" 
                                 class="product-image" 
                                 alt="${product.product_name}"
                                 onerror="this.src='images/default-book.jpg'">
@@ -750,7 +751,7 @@
 
             // 加入購物車函數
             function addToCart(cartData) {
-                fetch('http://localhost:8080/api/cart/add', {
+                fetch(`${BASE_URL}/api/cart/add`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -780,7 +781,7 @@
             function updateCartBadge(count) {
                 if (count === undefined) {
                     // 如果沒有提供數量，則從服務器獲取當前購物車狀態
-                    fetch('http://localhost:8080/api/cart', {
+                    fetch(`${BASE_URL}/api/cart`, {
                         credentials: 'include'
                     })
                         .then(response => response.json())

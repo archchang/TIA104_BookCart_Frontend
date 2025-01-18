@@ -139,6 +139,9 @@
                             <span id="userDisplayName"></span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                            <li><a class="dropdown-item" href="./member-profile.html">會員中心</a></li>
+                            <li><a class="dropdown-item" href="./member-orders.html">我的訂單</a></li>
+                            <li><a class="dropdown-item" href="./chat-room.html">聊天室</a></li>
                             <li><a class="dropdown-item" href="#" id="logoutBtn">Logout</a></li>
                         </ul>
                     </li>
@@ -198,6 +201,7 @@
         </div>
     </div>
 
+    <script src="/js/config.js"></script>
     <!-- jQuery -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
     <!-- Bootstrap JS -->
@@ -230,7 +234,7 @@
 
             // 載入購物車內容函數
             function loadCartContents() {
-                fetch('http://localhost:8080/api/cart', {
+                fetch(`${BASE_URL}/api/cart`, {
                     method: 'GET',
                     credentials: 'include'
                 })
@@ -271,7 +275,7 @@
 
             // 搜尋商品函數
             function searchProducts(searchText) {
-                fetch(`http://localhost:8080/api/products/search?name=${encodeURIComponent(searchText)}`)
+                fetch(`${BASE_URL}/api/products/search?name=${encodeURIComponent(searchText)}`)
                     .then(response => {
                         if (!response.ok) {
                             throw new Error('搜尋失敗');
@@ -291,7 +295,7 @@
             $('#logoutBtn').on('click', function (e) {
                 e.preventDefault();
 
-                fetch('http://localhost:8080/api/members/logout', {
+                fetch(`${BASE_URL}/api/members/logout`, {
                     method: 'POST',
                     credentials: 'include'
                 })
@@ -333,7 +337,7 @@
                     }
 
                     // 呼叫API取得類別資料
-                    fetch(`http://localhost:8080/api/categories/${categoryNo}`)
+                    fetch(`${BASE_URL}/api/categories/${categoryNo}`)
                         .then(response => {
                             if (!response.ok) throw new Error('取得類別資料失敗');
                             return response.json();
@@ -360,7 +364,7 @@
                         category_describe: formData.get('categoryDescribe')
                     };
 
-                    fetch(`http://localhost:8080/api/categories/${categoryNo}`, {
+                    fetch(`${BASE_URL}/api/categories/${categoryNo}`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json'

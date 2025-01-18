@@ -131,6 +131,9 @@
                             <span id="userDisplayName"></span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                            <li><a class="dropdown-item" href="./member-profile.html">會員中心</a></li>
+                            <li><a class="dropdown-item" href="./member-orders.html">我的訂單</a></li>
+                            <li><a class="dropdown-item" href="./chat-room.html">聊天室</a></li>
                             <li><a class="dropdown-item" href="#" id="logoutBtn">Logout</a></li>
                         </ul>
                     </li>
@@ -245,6 +248,7 @@
         </div>
     </div>
 
+    <script src="/js/config.js"></script>
     <!-- jQuery -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
     <!-- Bootstrap JS -->
@@ -336,7 +340,7 @@
 
             // 載入購物車內容函數
             function loadCartContents() {
-                fetch('http://localhost:8080/api/cart', {
+                fetch(`${BASE_URL}/api/cart`, {
                     method: 'GET',
                     credentials: 'include'
                 })
@@ -357,7 +361,7 @@
             $('#logoutBtn').on('click', function (e) {
                 e.preventDefault();
 
-                fetch('http://localhost:8080/api/members/logout', {
+                fetch(`${BASE_URL}/api/members/logout`, {
                     method: 'POST',
                     credentials: 'include'
                 })
@@ -415,7 +419,7 @@
                     };
 
                     // 2. 送出會員資料
-                    const memberResponse = await fetch('http://localhost:8080/api/members', {
+                    const memberResponse = await fetch(`${BASE_URL}/api/members`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -435,7 +439,7 @@
                         const photoFormData = new FormData();
                         photoFormData.append('photo', photoFile);
 
-                        const photoResponse = await fetch(`http://localhost:8080/api/members/${createdMember.memberNo}/photo`, {
+                        const photoResponse = await fetch(`${BASE_URL}/api/members/${createdMember.memberNo}/photo`, {
                             method: 'POST',
                             body: photoFormData
                         });

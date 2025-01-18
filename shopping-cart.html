@@ -306,6 +306,8 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
                             <li><a class="dropdown-item" href="./member-profile.html">會員中心</a></li>
+                            <li><a class="dropdown-item" href="./member-orders.html">我的訂單</a></li>
+                            <li><a class="dropdown-item" href="./chat-room.html">聊天室</a></li>
                             <li><a class="dropdown-item" href="#" id="logoutBtn">Logout</a></li>
                         </ul>
                     </li>
@@ -339,7 +341,7 @@
         </div>
     </div>
 
-
+    <script src="./js/config.js"></script>
     <!-- jQuery -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
     <!-- Bootstrap JS -->
@@ -373,7 +375,7 @@
             $('#logoutBtn').on('click', function (e) {
                 e.preventDefault();
 
-                fetch('http://localhost:8080/api/members/logout', {
+                fetch(`${BASE_URL}/api/members/logout`, {
                     method: 'POST',
                     credentials: 'include'
                 })
@@ -422,7 +424,7 @@
             // 搜尋商品函數
             function searchProducts(searchText) {
                 // 使用 Fetch API 發送搜尋請求
-                fetch(`http://localhost:8080/api/products/search?name=${encodeURIComponent(searchText)}`)
+                fetch(`${BASE_URL}/api/products/search?name=${encodeURIComponent(searchText)}`)
                     .then(response => {
                         if (!response.ok) {
                             throw new Error('搜尋失敗');
@@ -462,7 +464,7 @@
                 cartData.items.forEach(item => {
                     cartHtml += `
                 <div class="cart-item">
-                <img src="http://localhost:8080/api/products/${item.product_no}/image" 
+                <img src="${BASE_URL}/api/products/${item.product_no}/image" 
                      alt="${item.product_name}" 
                      class="cart-item-image">
                 <div class="cart-item-info">
@@ -497,7 +499,7 @@
 
                 $cartItems.html(cartHtml);
                 // 獲取購物車總金額
-                fetch('http://localhost:8080/api/cart/checkout', {
+                fetch(`${BASE_URL}/api/cart/checkout`, {
                     method: 'GET',
                     credentials: 'include'
                 })
@@ -534,7 +536,7 @@
             // 綁定清空購物車按鈕點擊事件
             $('#clearCartBtn button').click(function () {
                 if (confirm('確定要清空購物車嗎？')) {
-                    fetch('http://localhost:8080/api/cart/clear', {
+                    fetch(`${BASE_URL}/api/cart/clear`, {
                         method: 'DELETE',
                         credentials: 'include'
                     })
@@ -555,7 +557,7 @@
             // 增加商品數量
             $(document).on('click', '.increase-btn', function () {
                 const index = $(this).closest('.cart-item').index(); // 獲取商品在購物車中的索引
-                fetch(`http://localhost:8080/api/cart/quantity/increase/${index}`, {
+                fetch(`${BASE_URL}/api/cart/quantity/increase/${index}`, {
                     method: 'PUT',
                     credentials: 'include'
                 })
@@ -573,7 +575,7 @@
             // 減少商品數量
             $(document).on('click', '.decrease-btn', function () {
                 const index = $(this).closest('.cart-item').index(); // 獲取商品在購物車中的索引
-                fetch(`http://localhost:8080/api/cart/quantity/decrease/${index}`, {
+                fetch(`${BASE_URL}/api/cart/quantity/decrease/${index}`, {
                     method: 'PUT',
                     credentials: 'include'
                 })
@@ -593,7 +595,7 @@
             $(document).on('click', '.delete-btn', function () {
                 const index = $(this).closest('.cart-item').index(); // 獲取商品在購物車中的索引
                 if (confirm('確定要刪除此商品嗎？')) {
-                    fetch(`http://localhost:8080/api/cart/${index}`, {
+                    fetch(`${BASE_URL}/api/cart/${index}`, {
                         method: 'DELETE',
                         credentials: 'include'
                     })
@@ -611,7 +613,7 @@
 
             // 初始化載入購物車內容
             function loadCartContents() {
-                fetch('http://localhost:8080/api/cart', {
+                fetch(`${BASE_URL}/api/cart`, {
                     method: 'GET',
                     credentials: 'include',
                     headers: {

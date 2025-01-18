@@ -194,6 +194,9 @@
                             <span id="userDisplayName"></span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                            <li><a class="dropdown-item" href="./member-profile.html">會員中心</a></li>
+                            <li><a class="dropdown-item" href="./member-orders.html">我的訂單</a></li>
+                            <li><a class="dropdown-item" href="./chat-room.html">聊天室</a></li>
                             <li><a class="dropdown-item" href="#" id="logoutBtn">Logout</a></li>
                         </ul>
                     </li>
@@ -318,6 +321,7 @@
         </div>
     </div>
 
+    <script src="/js/config.js"></script>
     <!-- jQuery -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
     <!-- Bootstrap JS -->
@@ -344,7 +348,7 @@
             return `
     <tr>
         <td>
-            <img src="http://localhost:8080/api/members/${member.memberNo}/photo" 
+            <img src="${BASE_URL}/api/members/${member.memberNo}/photo" 
                  alt="會員照片"
                  class="rounded-circle"
                  width="50" height="50"
@@ -383,7 +387,7 @@
 
         // 載入「全部」會員資料
         function loadAllMembers() {
-            fetch('http://localhost:8080/api/members')  // 取得所有會員，不分頁
+            fetch(`${BASE_URL}/api/members`)  // 取得所有會員，不分頁
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('載入會員資料失敗');
@@ -447,7 +451,7 @@
             if (createTimeEnd) searchParams.append('createTimeEnd', createTimeEnd);
 
             // 組合API URL
-            const url = `http://localhost:8080/api/members/search?${searchParams.toString()}`;
+            const url = `${BASE_URL}/api/members/search?${searchParams.toString()}`;
             console.log('搜尋 URL:', url); // 加入此行來檢查生成的 URL
 
             // 呼叫搜尋API
@@ -503,7 +507,7 @@
             // 顯示確認對話框
             if (confirm('確定要刪除此會員嗎？此操作無法復原。')) {
                 // 呼叫刪除 API
-                fetch(`http://localhost:8080/api/members/${memberNo}`, {
+                fetch(`${BASE_URL}/api/members/${memberNo}`, {
                     method: 'DELETE'
                 })
                     .then(response => {
@@ -546,7 +550,7 @@
 
             // 載入購物車內容函式（可自行保留或修改）
             function loadCartContents() {
-                fetch('http://localhost:8080/api/cart', {
+                fetch(`${BASE_URL}/api/cart`, {
                     method: 'GET',
                     credentials: 'include'
                 })
@@ -567,13 +571,10 @@
             loadAllMembers();
 
 
-
-            
-
             // 登出按鈕
             $('#logoutBtn').on('click', function (e) {
                 e.preventDefault();
-                fetch('http://localhost:8080/api/members/logout', {
+                fetch(`${BASE_URL}/api/members/logout`, {
                     method: 'POST',
                     credentials: 'include'
                 })

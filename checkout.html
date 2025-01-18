@@ -175,6 +175,8 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
                             <li><a class="dropdown-item" href="./member-profile.html">會員中心</a></li>
+                            <li><a class="dropdown-item" href="./member-orders.html">我的訂單</a></li>
+                            <li><a class="dropdown-item" href="./chat-room.html">聊天室</a></li>
                             <li><a class="dropdown-item" href="#" id="logoutBtn">Logout</a></li>
                         </ul>
                     </li>
@@ -335,6 +337,7 @@
             </div>
         </div>
     </div>
+    <script src="./js/config.js"></script>
     <!-- jQuery -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
     <!-- Bootstrap JS -->
@@ -400,7 +403,7 @@
                 async loadCartData() {
                     loadingControl.show();
                     try {
-                        const response = await fetch('http://localhost:8080/api/cart', {
+                        const response = await fetch(`${BASE_URL}/api/cart`, {
                             credentials: 'include'
                         });
                         if (!response.ok) throw new Error('載入購物車失敗');
@@ -444,7 +447,7 @@
                 async loadMemberInfo() {
                     try {
                         // 先檢查登入狀態
-                        const loginResponse = await fetch('http://localhost:8080/api/members/login', {
+                        const loginResponse = await fetch(`${BASE_URL}/api/members/login`, {
                             credentials: 'include'
                         });
 
@@ -453,7 +456,7 @@
                         }
 
                         // 如果已登入，獲取完整會員資料
-                        const memberResponse = await fetch('http://localhost:8080/api/members', {
+                        const memberResponse = await fetch(`${BASE_URL}/api/members`, {
                             credentials: 'include'
                         });
 
@@ -528,7 +531,7 @@
                     $('#logoutBtn').on('click', async (e) => {
                         e.preventDefault();
                         try {
-                            const response = await fetch('http://localhost:8080/api/members/logout', {
+                            const response = await fetch(`${BASE_URL}/api/members/logout`, {
                                 method: 'POST',
                                 credentials: 'include'
                             });
@@ -610,7 +613,7 @@
 
                         try {
                             // 獲取購物車資料
-                            const cartResponse = await fetch('http://localhost:8080/api/cart', {
+                            const cartResponse = await fetch(`${BASE_URL}/api/cart`, {
                                 credentials: 'include'
                             });
 
@@ -638,7 +641,7 @@
                             };
 
                             // 發送訂單 API 請求
-                            const orderResponse = await fetch('http://localhost:8080/api/orders', {
+                            const orderResponse = await fetch(`${BASE_URL}/api/orders`, {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json'

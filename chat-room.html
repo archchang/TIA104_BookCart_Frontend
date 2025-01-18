@@ -58,7 +58,6 @@
             background-color: #f8f9fa;
         }
 
-
         /* 聊天室類型切換按鈕樣式 */
         .chat-type-switch {
             margin-bottom: 20px;
@@ -93,6 +92,24 @@
             color: white;
             padding: 15px;
             border-radius: 10px 10px 0 0;
+        }
+
+        /* 連接狀態指示器樣式 */
+        #connectionStatus {
+            margin: 0;
+            border-radius: 0;
+            border: none;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        #connectionStatus.connected {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        #connectionStatus.error {
+            background-color: #f8d7da;
+            color: #721c24;
         }
 
         .chat-messages {
@@ -164,49 +181,21 @@
             margin-right: 5px;
         }
 
-        /* 時間戳記樣式 */
         .message-time {
             font-size: 0.75rem;
             opacity: 0.7;
             margin-top: 4px;
         }
 
-        /* 聊天室狀態樣式 */
-        
-
-        /* 消息加載動畫 */
-        .message-loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #f3f3f3;
-            border-radius: 50%;
-            border-top: 2px solid #4b49ac;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* 改進消息樣式 */
         .message-content {
             word-break: break-word;
             white-space: pre-wrap;
         }
 
-        /* Toast提示樣式 */
         .toast-container {
             z-index: 1050;
         }
 
-        /* 改進在線用戶列表樣式 */
         .user-item {
             display: flex;
             align-items: center;
@@ -226,17 +215,14 @@
             color: white;
         }
 
-        /* 改進聊天室狀態樣式 */
         .chat-status {
             font-size: 0.875rem;
             padding: 4px 8px;
             border-radius: 12px;
             background-color: rgba(255, 255, 255, 0.2);
             margin-left: 10px;
-            margin-left: 10px;
             opacity: 0.8;
         }
-        
     </style>
 </head>
 
@@ -277,6 +263,8 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
                             <li><a class="dropdown-item" href="./member-profile.html">會員中心</a></li>
+                            <li><a class="dropdown-item" href="./member-orders.html">我的訂單</a></li>
+                            <li><a class="dropdown-item" href="./chat-room.html">聊天室</a></li>
                             <li><a class="dropdown-item" href="#" id="logoutBtn">Logout</a></li>
                         </ul>
                     </li>
@@ -304,6 +292,13 @@
                     即時聊天室
                     <span class="chat-status"></span>
                 </h4>
+            </div>
+            <!-- 連接狀態指示器 -->
+            <div id="connectionStatus" class="alert alert-info text-center d-none">
+                <div class="spinner-border spinner-border-sm me-2" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <span class="status-text">正在連接聊天室...</span>
             </div>
             <div class="row g-0">
                 <!-- 在線使用者列表 -->
@@ -340,21 +335,11 @@
         </div>
     </div>
 
-    <!-- 載入提示 Modal -->
-    <div class="modal fade" id="loadingModal" tabindex="-1" data-bs-backdrop="static">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-body text-center py-4">
-                    <div class="spinner-border text-primary mb-3" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <h5 class="mb-0">正在連接聊天室...</h5>
-                </div>
-            </div>
-        </div>
-    </div>
+
 
     <div id="errorToast" class="toast-container position-fixed top-0 end-0 p-3"></div>
+
+    <script src="./js/config.js"></script>
     <!-- jQuery -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
     <!-- Bootstrap JS -->
@@ -362,7 +347,14 @@
 
     <!-- JavaScript -->
     <script>
-        
+        let publicWebSocket;
+        let privateWebSocket;
+        let selectedUser = '';
+        let currentChatType = 'public'; // 預設為公開聊天室
+        let reconnectAttempts = 0;
+        const maxReconnectAttempts = 5;
+        let currentUser;
+
         function sendMessage() {
             const messageInput = document.getElementById('messageInput');
             const content = messageInput.value.trim();
@@ -386,8 +378,15 @@
                 timestamp: new Date().toISOString()
             };
 
-            if (webSocket && webSocket.readyState === WebSocket.OPEN) {
-                webSocket.send(JSON.stringify(message));
+            let ws;
+            if (currentChatType === 'public') {
+                ws = publicWebSocket;
+            } else {
+                ws = privateWebSocket;
+            }
+
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify(message));
                 messageInput.value = '';
                 messageInput.focus();
             } else {
@@ -395,23 +394,42 @@
             }
         }
 
-        let webSocket;
-        let selectedUser = '';
-        let currentChatType = 'public'; // 預設為公開聊天室
-        let reconnectAttempts = 0;
-        const maxReconnectAttempts = 5;
-        let currentUser;
+        function showConnectionStatus(message, type = 'info') {
+            const statusDiv = $('#connectionStatus');
+            const spinner = statusDiv.find('.spinner-border');
+            
+            const statusTextElem = statusDiv.find('.status-text');
 
-        const modalEle = document.getElementById('loadingModal');
-        const loadingModal = new bootstrap.Modal(modalEle);
+            statusDiv.removeClass('d-none alert-info alert-success alert-danger');
+            statusTextElem.text(message);
+
+            switch (type) {
+                case 'success':
+                    statusDiv.addClass('alert-success');
+                    spinner.addClass('d-none');
+                    // 3秒後隱藏成功消息
+                    setTimeout(() => {
+                        statusDiv.addClass('d-none');
+                    }, 3000);
+                    break;
+                case 'error':
+                    statusDiv.addClass('alert-danger');
+                    spinner.addClass('d-none');
+                    break;
+                default:
+                    statusDiv.addClass('alert-info');
+                    spinner.removeClass('d-none');
+            }
+        }
 
         $(document).ready(function () {
-            // 全局變量
-
             // 檢查登入狀態
             checkLoginStatus();
             // 初始化時更新購物車數量
             updateCartBadge();
+
+            // 把 sendMessage 綁定到 window 對象，這樣 HTML 的 onclick 才能調用
+            window.sendMessage = sendMessage;
 
             // 檢查登入狀態
             function checkLoginStatus() {
@@ -435,7 +453,7 @@
             $('#logoutBtn').on('click', function (e) {
                 e.preventDefault();
 
-                fetch('http://localhost:8080/api/members/logout', {
+                fetch(`${BASE_URL}/api/members/logout`, {
                     method: 'POST',
                     credentials: 'include'
                 })
@@ -455,7 +473,7 @@
 
             // 更新購物車數量標籤
             function updateCartBadge() {
-                fetch('http://localhost:8080/api/cart', {
+                fetch(`${BASE_URL}/api/cart`, {
                     credentials: 'include'
                 })
                     .then(response => response.json())
@@ -471,7 +489,7 @@
             function getWebSocketBaseUrl() {
                 const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
                 const host = window.location.hostname;
-                const port = '8080';
+                const port = BASE_URL.split(':')[2]; // 從 BASE_URL 取得 port
                 return `${protocol}//${host}:${port}`;
             }
 
@@ -487,37 +505,56 @@
                 try {
                     const wsUrl = `${baseUrl}/${endpoint}/${encodeURIComponent(currentUser)}`;
                     console.log('Connecting to WebSocket:', wsUrl);
-                    webSocket = new WebSocket(wsUrl);
-                    console.log(webSocket)
 
-                    webSocket.onopen = handleOpen;
-                    webSocket.onmessage = handleMessage;
-                    webSocket.onclose = handleClose;
-                    webSocket.onerror = handleError;
+                    // 顯示連接狀態
+                    showConnectionStatus('正在連接聊天室...');
+
+                    const ws = new WebSocket(wsUrl);
+
+                    ws.onopen = function () {
+                        console.log('WebSocket 已連接');
+                        updateStatus('已連接');
+                        showConnectionStatus('聊天室已連接', 'success');
+                        reconnectAttempts = 0;
+
+                        // 發送加入消息
+                        const joinMessage = {
+                            type: 'chat',
+                            chatType: currentChatType,
+                            sender: currentUser,
+                            receiver: 'ALL',
+                            content: '已加入聊天室',
+                            timestamp: new Date().toISOString()
+                        };
+                        ws.send(JSON.stringify(joinMessage));
+                    };
+
+                    ws.onmessage = handleMessage;
+
+                    ws.onclose = function () {
+                        console.log('WebSocket 連接已關閉');
+                        updateStatus('未連接');
+                        showConnectionStatus('連接已斷開，正在重新連接...', 'error');
+                        handleReconnection();
+                    };
+
+                    ws.onerror = function (error) {
+                        console.error('WebSocket 錯誤:', error);
+                        updateStatus('連接錯誤');
+                        showConnectionStatus('連接出現錯誤', 'error');
+                    };
+
+                    if (currentChatType === 'public') {
+                        publicWebSocket = ws;
+                    } else {
+                        privateWebSocket = ws;
+                    }
                 } catch (error) {
-                    console.error('WebSocket連接錯誤:', error);
+                    console.error('WebSocket 連接錯誤:', error);
                     updateStatus('連接錯誤');
+                    showConnectionStatus('無法建立連接', 'error');
                 }
             }
-
-            function handleOpen() {
-                loadingModal.hide();
-                
-                updateStatus('已連接');
-                reconnectAttempts = 0;
-
-                // 發送加入消息
-                const joinMessage = {
-                    type: 'chat',
-                    chatType: currentChatType,
-                    sender: currentUser,
-                    receiver: 'ALL',
-                    content: '已加入聊天室',
-                    timestamp: new Date().toISOString()
-                };
-                webSocket.send(JSON.stringify(joinMessage));
-            }
-
             function handleMessage(event) {
                 try {
                     const message = JSON.parse(event.data);
@@ -544,40 +581,28 @@
                 }
             }
 
-            function handleClose() {
-                console.log('WebSocket連接已關閉');
-                updateStatus('未連接');
-                handleReconnection();
-            }
-
-            function handleError(error) {
-                console.error('WebSocket錯誤:', error);
-                updateStatus('連接錯誤');
-            }
-
             function handleReconnection() {
                 if (reconnectAttempts < maxReconnectAttempts) {
                     reconnectAttempts++;
                     const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 30000);
-                    updateStatus(`重新連接中 (${reconnectAttempts}/${maxReconnectAttempts})`);
+                    showConnectionStatus(`正在嘗試重新連接 (${reconnectAttempts}/${maxReconnectAttempts})...`);
                     setTimeout(connectWebSocket, delay);
                 } else {
-                    updateStatus('連接失敗，請刷新頁面重試');
-                    showError('無法連接到聊天服務器，請檢查網絡連接後刷新頁面');
+                    showConnectionStatus('無法連接到聊天服務器，請刷新頁面重試', 'error');
                 }
             }
 
             function displayMessage(message) {
                 const isCurrentUser = message.sender === currentUser;
                 const messageHtml = `
-            <div class="message ${isCurrentUser ? 'sent' : 'received'}">
-                <small class="d-block mb-1">${escapeHtml(message.sender)}</small>
-                <div class="message-content">${escapeHtml(message.content)}</div>
-                <div class="message-time">
-                    ${new Date(message.timestamp).toLocaleTimeString()}
-                </div>
-            </div>
-        `;
+                    <div class="message ${isCurrentUser ? 'sent' : 'received'}">
+                        <small class="d-block mb-1">${escapeHtml(message.sender)}</small>
+                        <div class="message-content">${escapeHtml(message.content)}</div>
+                        <div class="message-time">
+                            ${new Date(message.timestamp).toLocaleTimeString()}
+                        </div>
+                    </div>
+                `;
                 $('#chatMessages').append(messageHtml);
                 scrollToBottom();
             }
@@ -605,12 +630,12 @@
                 users.forEach(user => {
                     if (user !== currentUser) {
                         const li = `
-                    <li class="user-item ${user === selectedUser ? 'active' : ''}" 
-                        data-user="${escapeHtml(user)}">
-                        <span class="online-indicator"></span>
-                        ${escapeHtml(user)}
-                    </li>
-                `;
+                            <li class="user-item ${user === selectedUser ? 'active' : ''}" 
+                                data-user="${escapeHtml(user)}">
+                                <span class="online-indicator"></span>
+                                ${escapeHtml(user)}
+                            </li>
+                        `;
                         userList.append(li);
                     }
                 });
@@ -625,8 +650,9 @@
                         content: ''
                     };
 
-                    if (webSocket && webSocket.readyState === WebSocket.OPEN) {
-                        webSocket.send(JSON.stringify(historyRequest));
+                    let ws = privateWebSocket;
+                    if (ws && ws.readyState === WebSocket.OPEN) {
+                        ws.send(JSON.stringify(historyRequest));
                     }
                 }
             }
@@ -634,12 +660,17 @@
             function updateChatInterface() {
                 $('#chatMessages').empty();
 
-                if (webSocket) {
-                    webSocket.close();
+                // 關閉所有 WebSocket 連接
+                if (publicWebSocket && publicWebSocket.readyState === WebSocket.OPEN) {
+                    publicWebSocket.close();
+                }
+                if (privateWebSocket && privateWebSocket.readyState === WebSocket.OPEN) {
+                    privateWebSocket.close();
                 }
 
-                loadingModal.show();
-                // $('#loadingModal').modal('show');
+                // 顯示連接狀態
+                showConnectionStatus('正在連接聊天室...');
+
                 connectWebSocket();
 
                 if (currentChatType === 'public') {
@@ -659,9 +690,9 @@
                     : `<i class="bi bi-person-fill"></i> 私人聊天：${selectedUser || '請選擇聊天對象'}`;
 
                 $('.chat-header h4').html(`
-            ${headerHtml}
-            <span class="chat-status"></span>
-        `);
+                    ${headerHtml}
+                    <span class="chat-status"></span>
+                `);
             }
 
             function updateStatus(status) {
@@ -670,16 +701,16 @@
 
             function showError(message) {
                 const toastHtml = `
-            <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3000">
-                <div class="toast-header bg-danger text-white">
-                    <strong class="me-auto">錯誤提示</strong>
-                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-                <div class="toast-body">
-                    ${escapeHtml(message)}
-                </div>
-            </div>
-        `;
+                    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3000">
+                        <div class="toast-header bg-danger text-white">
+                            <strong class="me-auto">錯誤提示</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body">
+                            ${escapeHtml(message)}
+                        </div>
+                    </div>
+                `;
 
                 const toastContainer = document.createElement('div');
                 toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
@@ -739,16 +770,9 @@
 
             // 初始化WebSocket連接
             if (currentUser) {
-                loadingModal.show();
-                // $('#loadingModal').modal('show');
                 connectWebSocket();
             }
         });
-
-
-    modalEle.addEventListener('hide.bs.modal', function () {
-        console.log('Modal');
-    });
     </script>
 </body>
 
