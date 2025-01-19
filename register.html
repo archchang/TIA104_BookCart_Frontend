@@ -568,8 +568,34 @@
                     return response.json();
                 })
                 .then(data => {
-                    alert('註冊成功！');
-                    window.location.href = './login.html';
+                    // 顯示提醒訊息
+                    $('.register-form').html(`
+                        <div class="text-center">
+                            <i class="bi bi-envelope-check fs-1 text-success mb-3"></i>
+                            <h4>帳號申請完成！</h4>
+                            <p class="mb-4">
+                                驗證信已發送至您的信箱：<br>
+                                <strong>${formData.memberEmail}</strong>
+                            </p>
+                            <div class="alert alert-info" role="alert">
+                                <i class="bi bi-info-circle me-2"></i>
+                                請於5分鐘內完成Email驗證，<br>
+                                驗證完成後才能登入使用。
+                            </div>
+                            <div class="alert alert-warning" role="alert">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                沒收到驗證信？<br>
+                                ・請檢查垃圾郵件夾<br>
+                                ・或點擊下方按鈕重新發送
+                            </div>
+                            <div class="mt-4">
+                                <button type="button" class="btn btn-primary" 
+                                        onclick="resendVerification('${formData.memberEmail}')">
+                                    <i class="bi bi-send me-2"></i>重新發送驗證信
+                                </button>
+                            </div>
+                        </div>
+                    `);
                 })
                 .catch(error => {
                     if (error.message.includes('此帳號已被註冊')) {
@@ -602,7 +628,62 @@
                     console.error('搜尋錯誤:', error);
                 });
         }
+        // 重新發送驗證信函數
+        function resendVerification(email) {
+            if (!email) {
+                alert('無效的Email地址');
+                return;
+            }
 
+            // 禁用按鈕避免重複發送
+            const $btn = $('button:contains("重新發送驗證信")');
+            $btn.prop('disabled', true);
+            $btn.html('<span class="spinner-border spinner-border-sm me-2"></span>發送中...');
+
+            fetch(`${BASE_URL}/api/members/resend-verification`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email: email })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('重新發送失敗');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // 顯示成功訊息
+                    const $alertSuccess = $(`
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle me-2"></i>驗證信已重新發送
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `);
+                    $btn.before($alertSuccess);
+
+                    // 5秒後自動關閉提示
+                    setTimeout(() => {
+                        $alertSuccess.alert('close');
+                    }, 5000);
+                })
+                .catch(error => {
+                    // 顯示錯誤訊息
+                    const $alertError = $(`
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle me-2"></i>${error.message || '重新發送失敗，請稍後再試'}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `);
+                    $btn.before($alertError);
+                })
+                .finally(() => {
+                    // 重設按鈕狀態
+                    $btn.prop('disabled', false);
+                    $btn.html('<i class="bi bi-send me-2"></i>重新發送驗證信');
+                });
+        }
     </script>
 </body>
 

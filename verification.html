@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>書籍購物網站</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        /* 導航欄樣式 */
+        .navbar {
+            background-color: #4b49ac !important;
+        }
+
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+        }
+
+        .search-input {
+            width: 300px !important;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            padding: 2px 5px;
+            border-radius: 50%;
+            background: #dc3545;
+            color: white;
+            font-size: 12px;
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-link {
+            color: white !important;
+            margin-left: 15px;
+        }
+
+        /* 下拉選單樣式 */
+        .dropdown-menu {
+            background-color: white;
+            border: 1px solid rgba(0, 0, 0, .15);
+            min-width: 120px;
+        }
+
+        .dropdown-item {
+            color: #212529;
+            padding: 8px 20px;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .verification-container {
+            max-width: 500px;
+            margin: 40px auto;
+            padding: 30px;
+            text-align: center;
+            border: 1px solid #d3d3d3;
+            border-radius: 5px;
+        }
+
+        .icon-large {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .success-icon {
+            color: #28a745;
+        }
+
+        .error-icon {
+            color: #dc3545;
+        }
+
+        .info-icon {
+            color: #17a2b8;
+        }
+
+        .verification-message {
+            margin: 20px 0;
+            font-size: 18px;
+        }
+
+        .btn-action {
+            min-width: 150px;
+            margin-top: 20px;
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            text-align: center;
+        }
+
+        .footer-links a {
+            color: #6c757d;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        .footer-links a:hover {
+            color: #343a40;
+        }
+
+
+        /* RWD 響應式設計 */
+        @media (max-width: 768px) {
+            .search-input {
+                width: 100% !important;
+                margin: 10px 0;
+            }
+
+            .navbar-nav {
+                margin-top: 10px;
+            }
+        }
+        @media (max-width: 576px) {
+            .verification-container {
+                margin: 20px;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 導航欄 -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <!-- Logo -->
+            <a class="navbar-brand" href="./index.html">
+                <i class="bi bi-book"></i> Book Cart
+            </a>
+
+            <!-- 漢堡選單按鈕 -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- 導航內容 -->
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <!-- 搜尋欄 -->
+                <form class="d-flex mx-auto" onsubmit="return false;">
+                    <input class="form-control search-input" type="search" placeholder="Search books" id="searchInput">
+                </form>
+
+                <!-- 右側選單 -->
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="./shopping-cart.html" id="cartLink">
+                            <i class="bi bi-cart3 fs-5"></i>
+                            <span class="cart-badge" id="cartBadge">0</span>
+                        </a>
+                    </li>
+                    <!-- 登入/使用者選單 -->
+                    <li class="nav-item dropdown">
+                        <!-- 登入連結 (未登入時顯示) -->
+                        <a class="nav-link" href="./login.html" id="loginLink">
+                            Login
+                        </a>
+                        <!-- 用戶選單 (登入後顯示) -->
+                        <a class="nav-link dropdown-toggle d-none" href="#" id="userMenu" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <span id="userDisplayName"></span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                            <li><a class="dropdown-item" href="./member-profile.html">會員中心</a></li>
+                            <li><a class="dropdown-item" href="./member-orders.html">我的訂單</a></li>
+                            <li><a class="dropdown-item" href="./chat-room.html">聊天室</a></li>
+                            <li><a class="dropdown-item" href="#" id="logoutBtn">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要內容區域 -->
+    <div class="container">
+        <div class="verification-container">
+            <!-- 驗證狀態內容將由 JavaScript 動態插入 -->
+        </div>
+    </div>
+
+    <!-- 頁尾 -->
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="./index.html">首頁</a>
+
+        </div>
+    </footer>
+
+    <!-- Essential Scripts -->
+    <script src="./js/config.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // 檢查登入狀態
+            function checkLoginStatus() {
+                const userStr = localStorage.getItem('user');
+                const user = userStr ? JSON.parse(userStr) : null;
+                if (user && user.memberName) {
+                    $('#loginLink').addClass('d-none');
+                    $('#userMenu').removeClass('d-none');
+                    $('#userDisplayName').text(user.memberName);
+                } else {
+                    $('#loginLink').removeClass('d-none');
+                    $('#userMenu').addClass('d-none');
+                }
+            }
+
+            // 處理登出
+            $('#logoutBtn').on('click', function(e) {
+                e.preventDefault();
+                fetch(`${BASE_URL}/api/members/logout`, {
+                    method: 'POST',
+                    credentials: 'include'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    localStorage.removeItem('user');
+                    $('#loginLink').removeClass('d-none');
+                    $('#userMenu').addClass('d-none');
+                    alert(data.message);
+                    window.location.href = 'index.html';
+                })
+                .catch(error => {
+                    console.error('登出錯誤:', error);
+                    alert('登出失敗，請稍後再試');
+                });
+            });
+
+            // 更新購物車數量標籤
+            function updateCartBadge() {
+                fetch(`${BASE_URL}/api/cart`, {
+                    credentials: 'include'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    $('#cartBadge').text(data.pcs);
+                })
+                .catch(error => {
+                    console.error('獲取購物車資訊錯誤:', error);
+                });
+            }
+
+            // 初始化
+            checkLoginStatus();
+            updateCartBadge();
+
+            // 取得URL參數中的token
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            
+            if (!token) {
+                showError('無效的驗證連結');
+                return;
+            }
+            
+            // 驗證token
+            verifyEmail(token);
+        });
+        // 驗證Email
+        function verifyEmail(token) {
+            fetch(`${BASE_URL}/api/members/verify-email?token=${token}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.verified) {
+                        showSuccess();
+                    } else {
+                        showError();
+                    }
+                })
+                .catch(error => {
+                    console.error('驗證錯誤:', error);
+                    showError();
+                });
+        }
+        
+        // 重新發送驗證信
+        function resendVerification(email) {
+            fetch(`${BASE_URL}/api/members/resend-verification`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email: email })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+            })
+            .catch(error => {
+                console.error('重新發送驗證信錯誤:', error);
+                alert('重新發送驗證信失敗，請稍後再試');
+            });
+        }
+        
+        // 顯示驗證成功內容
+        function showSuccess() {
+            $('.verification-container').html(`
+                <i class="bi bi-check-circle-fill icon-large success-icon"></i>
+                <h2>驗證成功！</h2>
+                <p class="verification-message">
+                    您的帳號已成功驗證！<br>
+                    感謝您註冊我們的服務。
+                </p>
+                <a href="./login.html" class="btn btn-primary btn-action">
+                    前往登入
+                </a>
+            `);
+        }
+        
+        // 顯示驗證錯誤內容
+        function showError(message = '驗證失敗或連結已過期') {
+            $('.verification-container').html(`
+                <i class="bi bi-x-circle-fill icon-large error-icon"></i>
+                <h2>驗證失敗</h2>
+                <p class="verification-message">
+                    ${message}<br>
+                    請在5分鐘內完成驗證，若連結已過期請重新發送驗證郵件。
+                </p>
+                <div class="mt-3">
+                    <input type="email" class="form-control" id="resendEmail" 
+                           placeholder="請輸入您的Email">
+                    <button onclick="resendVerification($('#resendEmail').val())" 
+                            class="btn btn-primary btn-action">
+                        重新發送驗證郵件
+                    </button>
+                </div>
+            `);
+        }
+
+    </script>
+</body>
+</html>

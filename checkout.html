@@ -83,6 +83,23 @@
             background-color: #f8f9fa;
         }
 
+        /* 頂部固定警告橫幅 */
+        .alert-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: #fff3cd;
+            border-bottom: 1px solid #ffeeba;
+            padding: 1rem 0;
+            z-index: 1050;
+        }
+
+        .alert-banner .warning-text {
+            font-size: 0.9rem;
+            color: #856404;
+        }
+
 
         /* RWD 響應式設計 */
         @media (max-width: 768px) {
@@ -108,6 +125,10 @@
             .credit-card-input {
                 width: 60px;
                 margin-right: 5px;
+            }
+
+            .alert-banner .warning-text {
+                font-size: 0.8rem;
             }
         }
 
@@ -673,9 +694,48 @@
                 }
             };
 
+            // 警告訊息控制 (新增在這裡)
+            function initializeWarnings() {
+                // 檢查是否要顯示警告
+                const memberNo = $('#memberNo').val();
+                const warningKey = `warning_shown_${memberNo}`;
+                const hasSeenWarning = localStorage.getItem(warningKey) === 'true';
+
+                if (!hasSeenWarning && memberNo) {
+                    // 顯示警告橫幅
+                    const warningBanner = `
+                <div id="warningBanner" class="alert-banner">
+                    <div class="container">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="warning-text">
+                                ⚠️ 由於本網站僅為功能展示使用，請勿留下個人真實個資及信用卡資料，如不幸留存真實資料，請聯絡changy.tw@gmail.com，本公司會幫你從資料庫刪除
+                            </span>
+                            <button type="button" class="btn-close" aria-label="Close"></button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+                    // 插入警告橫幅
+                    $('body').prepend(warningBanner).addClass('has-banner');
+
+                    // 處理關閉按鈕點擊事件
+                    $('#warningBanner .btn-close').click(function () {
+                        $('#warningBanner').fadeOut(300, function () {
+                            $(this).remove();
+                            $('body').removeClass('has-banner');
+                        });
+                        // 記錄已顯示狀態
+                        localStorage.setItem(warningKey, 'true');
+                    });
+                }
+            }
             // 初始化所有功能
             function initialize() {
-                userControl.checkLoginStatus();
+                userControl.checkLoginStatus().then(() => {
+                    // 在會員資料載入完成後初始化警告
+                    setTimeout(initializeWarnings, 500); // 加入延遲確保會員編號已載入
+                });
                 userControl.initLogoutHandler();
                 formControl.initializeExpiryOptions();
                 formControl.initializeCreditCardInput();

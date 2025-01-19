@@ -378,12 +378,7 @@
                 timestamp: new Date().toISOString()
             };
 
-            let ws;
-            if (currentChatType === 'public') {
-                ws = publicWebSocket;
-            } else {
-                ws = privateWebSocket;
-            }
+            const ws = currentChatType === 'public' ? publicWebSocket : privateWebSocket;
 
             if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify(message));
@@ -397,7 +392,7 @@
         function showConnectionStatus(message, type = 'info') {
             const statusDiv = $('#connectionStatus');
             const spinner = statusDiv.find('.spinner-border');
-            
+
             const statusTextElem = statusDiv.find('.status-text');
 
             statusDiv.removeClass('d-none alert-info alert-success alert-danger');
@@ -558,6 +553,7 @@
             function handleMessage(event) {
                 try {
                     const message = JSON.parse(event.data);
+                    console.log('Received message:', message);
 
                     switch (message.type) {
                         case 'chat':
@@ -569,8 +565,9 @@
                             }
                             break;
                         case 'history':
-                            const historyData = JSON.parse(message.content);
-                            displayHistoryMessages(historyData);
+                            if (message.content) {
+                                displayHistoryMessages(JSON.parse(message.content));
+                            }
                             break;
                         case 'error':
                             showError(message.content);
