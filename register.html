@@ -459,9 +459,16 @@
             const errorText = nameInput.siblings('.error-text');
             const value = nameInput.val().trim();
 
+            // 姓名驗證規則：2-20個字元，只允許中文、英文字母和空格
+            const nameRegex = /^[\u4e00-\u9fa5a-zA-Z\s]{2,20}$/;
+
             if (!value) {
                 nameInput.addClass('is-invalid');
-                errorText.removeClass('d-none');
+                errorText.text('請輸入姓名').removeClass('d-none');
+                return false;
+            } else if (!nameRegex.test(value)) {
+                nameInput.addClass('is-invalid');
+                errorText.text('姓名格式錯誤，只能包含中文、英文字母，長度2-20字元').removeClass('d-none');
                 return false;
             } else {
                 nameInput.removeClass('is-invalid');
@@ -476,9 +483,16 @@
             const errorText = accountInput.siblings('.error-text');
             const value = accountInput.val().trim();
 
+            // 帳號驗證規則：4-20個字元，只允許英文字母、數字和底線，必須以字母開頭
+            const accountRegex = /^[a-zA-Z][a-zA-Z0-9_]{3,19}$/;
+
             if (!value) {
                 accountInput.addClass('is-invalid');
-                errorText.removeClass('d-none');
+                errorText.text('請輸入帳號').removeClass('d-none');
+                return false;
+            } else if (!accountRegex.test(value)) {
+                accountInput.addClass('is-invalid');
+                errorText.text('帳號格式錯誤，須以字母開頭，只能包含字母、數字和底線，長度4-20字元').removeClass('d-none');
                 return false;
             } else {
                 accountInput.removeClass('is-invalid');
@@ -494,9 +508,13 @@
             const value = emailInput.val().trim();
             const emailRegex = /^[A-Za-z0-9+_.-]+@(.+)$/;
 
-            if (!value || !emailRegex.test(value)) {
+            if (!value) {
                 emailInput.addClass('is-invalid');
-                errorText.removeClass('d-none');
+                errorText.text('請輸入電子郵件地址').removeClass('d-none');
+                return false;
+            } else if (!emailRegex.test(value)) {
+                emailInput.addClass('is-invalid');
+                errorText.text('請輸入有效的電子郵件地址格式').removeClass('d-none');
                 return false;
             } else {
                 emailInput.removeClass('is-invalid');
@@ -510,16 +528,30 @@
             const passwordInput = $('#memberPassword');
             const errorText = passwordInput.siblings('.error-text');
             const value = passwordInput.val();
-            const passwordRegex = /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9]{8,}$/;
 
-            if (!value || !passwordRegex.test(value)) {
+            // 密碼驗證規則：密碼必須包含至少8個字符，包含大小寫字母和數字
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+
+            if (!value) {
                 passwordInput.addClass('is-invalid');
-                errorText.removeClass('d-none');
+                errorText.text('請輸入密碼').removeClass('d-none');
+                return false;
+            }
+
+            if (!passwordRegex.test(value)) {
+                passwordInput.addClass('is-invalid');
+                errorText.text('密碼必須包含至少8個字符，包含大小寫字母和數字').removeClass('d-none');
+                return false;
+            }
+
+            if (errorMessages.length > 0) {
+                passwordInput.addClass('is-invalid');
+                errorText.html(errorMessages.join('<br>')).removeClass('d-none');
                 return false;
             } else {
                 passwordInput.removeClass('is-invalid');
                 errorText.addClass('d-none');
-                validateConfirmPassword();
+                validateConfirmPassword(); // 確認密碼也需要重新驗證
                 return true;
             }
         }
@@ -529,11 +561,16 @@
             const confirmInput = $('#confirmPassword');
             const passwordInput = $('#memberPassword');
             const errorText = confirmInput.siblings('.error-text');
-            const value = confirmInput.val();
+            const confirmValue = confirmInput.val();
+            const passwordValue = passwordInput.val();
 
-            if (!value || value !== passwordInput.val()) {
+            if (!confirmValue) {
                 confirmInput.addClass('is-invalid');
-                errorText.removeClass('d-none');
+                errorText.text('請再次輸入密碼').removeClass('d-none');
+                return false;
+            } else if (confirmValue !== passwordValue) {
+                confirmInput.addClass('is-invalid');
+                errorText.text('兩次輸入的密碼不相符').removeClass('d-none');
                 return false;
             } else {
                 confirmInput.removeClass('is-invalid');

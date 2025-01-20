@@ -231,7 +231,9 @@
                             <!-- 收件人姓名 -->
                             <div class="mb-3">
                                 <label for="name" class="form-label">收件人姓名</label>
-                                <input type="text" class="form-control" id="name" required>
+                                <input type="text" class="form-control" id="name" required
+                                    pattern="^[\u4e00-\u9fa5]{2,}|[a-zA-Z]{2,}(?: [a-zA-Z]+)*$" title="請輸入至少兩個中文字或英文名字">
+                                <div class="form-text">請輸入真實姓名（至少兩個字）</div>
                             </div>
 
                             <!-- 收件地址 -->
@@ -244,14 +246,16 @@
                                     <option value="">請選擇鄉鎮市區</option>
                                 </select>
                                 <input type="text" class="form-control mb-2" id="zipcode" placeholder="郵遞區號" readonly>
-                                <input type="text" class="form-control" id="address" placeholder="請輸入詳細地址" required>
+                                <input type="text" class="form-control" id="address" placeholder="請輸入詳細地址" required
+                                    pattern="^.{5,}$" title="請輸入至少5個字的詳細地址">
+                                <div class="form-text">請輸入完整地址（至少5個字）</div>
                             </div>
 
                             <!-- 收件人手機 -->
                             <div class="mb-3">
                                 <label for="phone" class="form-label">手機號碼</label>
-                                <input type="tel" class="form-control" id="phone" pattern="^09\d{8}$"
-                                    placeholder="請輸入手機號碼" required>
+                                <input type="tel" class="form-control" id="phone" pattern="^09[0-9]{8}$"
+                                    placeholder="請輸入手機號碼" required title="請輸入正確的台灣手機號碼格式（例：0912345678）">
                                 <div class="form-text">請輸入台灣手機號碼 (格式：0912345678)</div>
                             </div>
                             <!-- 信用卡資訊 -->
@@ -314,8 +318,9 @@
                             <!-- 信用卡安全碼 -->
                             <div class="mb-3">
                                 <label for="cvv" class="form-label">信用卡安全碼</label>
-                                <input type="text" class="form-control" id="cvv" maxlength="3" pattern="[0-9]{3}"
-                                    required>
+                                <input type="text" class="form-control" id="cvv" maxlength="3" pattern="^[0-9]{3}$"
+                                    required title="請輸入3位數字的安全碼">
+                                <div class="form-text">請輸入信用卡背面的3位數安全碼</div>
                             </div>
 
                             <!-- 送出按鈕 -->
@@ -604,20 +609,11 @@
 
                 initializePhoneValidation() {
                     const phoneInput = $('#phone');
-                    const isValidTaiwanPhone = (phone) => /^09[0-9]{8}$/.test(phone);
-
                     phoneInput.on('input', function () {
-                        let value = $(this).val();
-                        value = value.replace(/\D/g, '');
-                        if (value.length > 10) {
-                            value = value.slice(0, 10);
-                        }
-                        $(this).val(value);
-                    });
-
-                    phoneInput.on('blur', function () {
                         const value = $(this).val();
-                        if (value && !isValidTaiwanPhone(value)) {
+                        const isValidPhone = /^09[0-9]{8}$/.test(value);
+
+                        if (value && !isValidPhone) {
                             $(this).addClass('is-invalid').removeClass('is-valid');
                         } else if (value) {
                             $(this).addClass('is-valid').removeClass('is-invalid');
@@ -625,6 +621,59 @@
                             $(this).removeClass('is-valid is-invalid');
                         }
                     });
+                },
+
+                // 新增的驗證方法
+                initializeNameValidation() {
+                    $('#name').on('input', function () {
+                        const value = $(this).val();
+                        const isValidName = /^[\u4e00-\u9fa5]{2,}|[a-zA-Z]{2,}(?: [a-zA-Z]+)*$/.test(value);
+
+                        if (value && !isValidName) {
+                            $(this).addClass('is-invalid').removeClass('is-valid');
+                        } else if (value) {
+                            $(this).addClass('is-valid').removeClass('is-invalid');
+                        } else {
+                            $(this).removeClass('is-valid is-invalid');
+                        }
+                    });
+                },
+
+                initializeAddressValidation() {
+                    $('#address').on('input', function () {
+                        const value = $(this).val();
+                        const isValidAddress = value.length >= 5;
+
+                        if (value && !isValidAddress) {
+                            $(this).addClass('is-invalid').removeClass('is-valid');
+                        } else if (value) {
+                            $(this).addClass('is-valid').removeClass('is-invalid');
+                        } else {
+                            $(this).removeClass('is-valid is-invalid');
+                        }
+                    });
+                },
+
+                initializeCVVValidation() {
+                    $('#cvv').on('input', function () {
+                        const value = $(this).val();
+                        const isValidCVV = /^[0-9]{3}$/.test(value);
+
+                        if (value && !isValidCVV) {
+                            $(this).addClass('is-invalid').removeClass('is-valid');
+                        } else if (value) {
+                            $(this).addClass('is-valid').removeClass('is-invalid');
+                        } else {
+                            $(this).removeClass('is-valid is-invalid');
+                        }
+                    });
+                },
+
+                initializeFormValidation() {
+                    this.initializeNameValidation();
+                    this.initializeAddressValidation();
+                    this.initializePhoneValidation();
+                    this.initializeCVVValidation();
                 },
 
                 initializeFormSubmission() {
@@ -741,6 +790,7 @@
                 formControl.initializeCreditCardInput();
                 formControl.initializePhoneValidation();
                 formControl.initializeFormSubmission();
+                formControl.initializeFormValidation();
                 addressControl.initializeAddressSelectors();
                 cartControl.loadCartData();
             }
