@@ -13,7 +13,7 @@ ajax
 nginx (version number: Windows-1.26.2)
 
 Deployment
-All project files are dropped into the html folder of the nginx server
+All project files are dropped into the html folder of the nginx server,
 Please note the encoding problem (utf-8) in nginx.conf
 
 Common instructions
