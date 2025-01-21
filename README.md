@@ -1,3 +1,5 @@
+Project Development Strategy: Minimum Viable Product (MVP)
+
 Please cooperate TIA104_BookCart_Backend project
 
 Deployment Environment
