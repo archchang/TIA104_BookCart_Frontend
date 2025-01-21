@@ -17,6 +17,6 @@ All project files are dropped into the html folder of the nginx server
 Please note the encoding problem (utf-8) in nginx.conf
 
 Common instructions
-start nginx
-nginx -s reload
+start nginx,
+nginx -s reload,
 nginx -s quit
