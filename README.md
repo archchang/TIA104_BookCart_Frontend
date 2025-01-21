@@ -3,7 +3,7 @@ Please cooperate TIA104_BookCart_Backend project
 Deployment Environment
 Windows Server 2016 (CPU 2 cores, RAM 16G)
 
-Using Technology
+Using Technology:
 html
 css
 Bootstrap
