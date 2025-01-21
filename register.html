@@ -223,9 +223,9 @@
             <!-- 導航內容 -->
             <div class="collapse navbar-collapse" id="navbarContent">
                 <!-- 搜尋欄 -->
-                <form class="d-flex mx-auto" onsubmit="return false;">
+                <!-- <form class="d-flex mx-auto" onsubmit="return false;">
                     <input class="form-control search-input" type="search" placeholder="Search books" id="searchInput">
-                </form>
+                </form> -->
 
                 <!-- 右側選單 -->
                 <ul class="navbar-nav ms-auto">
@@ -237,7 +237,7 @@
                     </li>
                     <li class="nav-item dropdown" id="userMenu">
                         <!-- 未登入時顯示 -->
-                        <a class="nav-link" href="./login.html" id="loginLink">Login</a>
+                        <a class="nav-link" href="./login.html" id="loginLink">登入</a>
 
                         <!-- 登入後顯示 -->
                         <a class="nav-link dropdown-toggle d-none" href="#" id="userDropdown" role="button"
@@ -247,7 +247,7 @@
                             <li><a class="dropdown-item" href="./member-profile.html">會員中心</a></li>
                             <li><a class="dropdown-item" href="./member-orders.html">我的訂單</a></li>
                             <li><a class="dropdown-item" href="./chat-room.html">聊天室</a></li>
-                            <li><a class="dropdown-item" href="#" id="logoutBtn">Logout</a></li>
+                            <li><a class="dropdown-item" href="#" id="logoutBtn">登出</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -268,6 +268,10 @@
 
             <!-- 註冊表單 -->
             <div class="register-form">
+                <!-- 增加這個錯誤提示區域 -->
+                <div id="errorAlert" class="alert alert-danger d-none" role="alert">
+                </div>
+
                 <form id="registerForm" novalidate>
                     <!-- 姓名欄位 -->
                     <div class="mb-3">
@@ -544,16 +548,12 @@
                 return false;
             }
 
-            if (errorMessages.length > 0) {
-                passwordInput.addClass('is-invalid');
-                errorText.html(errorMessages.join('<br>')).removeClass('d-none');
-                return false;
-            } else {
-                passwordInput.removeClass('is-invalid');
-                errorText.addClass('d-none');
-                validateConfirmPassword(); // 確認密碼也需要重新驗證
-                return true;
-            }
+
+            passwordInput.removeClass('is-invalid');
+            errorText.addClass('d-none');
+            validateConfirmPassword(); // 確認密碼也需要重新驗證
+            return true;
+
         }
 
         // 驗證確認密碼函數
@@ -581,6 +581,11 @@
 
         // 提交表單函數
         function submitForm() {
+            // 清除所有錯誤提示
+            $('.error-text').addClass('d-none');
+            $('.form-control').removeClass('is-invalid');
+            $('#errorAlert').addClass('d-none');
+
             const formData = {
                 memberName: $('#memberName').val().trim(),
                 memberAccount: $('#memberAccount').val().trim(),
@@ -597,12 +602,13 @@
                 credentials: 'include'
             })
                 .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(data => {
-                            throw new Error(data.message || '註冊失敗');
-                        });
-                    }
-                    return response.json();
+                    // 修改這部分來正確接收後端錯誤
+                    return response.json().then(data => {
+                        if (!response.ok) {
+                            throw new Error(data.error);  // 因為後端回傳 {error: "錯誤訊息"}
+                        }
+                        return data;
+                    });
                 })
                 .then(data => {
                     // 顯示提醒訊息
@@ -635,16 +641,30 @@
                     `);
                 })
                 .catch(error => {
-                    if (error.message.includes('此帳號已被註冊')) {
-                        $('#memberAccount').addClass('is-invalid');
-                        $('#memberAccount').siblings('.error-text').text('此帳號已被註冊').removeClass('d-none');
-                    } else if (error.message.includes('此Email已被註冊')) {
-                        $('#memberEmail').addClass('is-invalid');
-                        $('#memberEmail').siblings('.error-text').text('此Email已被註冊').removeClass('d-none');
-                    } else {
-                        alert(error.message);
-                    }
                     console.error('註冊錯誤:', error);
+
+                    // 清除之前的錯誤提示
+                    $('.error-text').addClass('d-none');
+                    $('.form-control').removeClass('is-invalid');
+
+                    // 根據錯誤訊息顯示對應提示
+                    if (error.message === '帳號已存在') {
+                        $('#memberAccount').addClass('is-invalid');
+                        $('#memberAccount')
+                            .siblings('.error-text')
+                            .text('此帳號已被註冊')
+                            .removeClass('d-none');
+                    } else if (error.message === '此Email已被註冊') {
+                        $('#memberEmail').addClass('is-invalid');
+                        $('#memberEmail')
+                            .siblings('.error-text')
+                            .text('此Email已被註冊')
+                            .removeClass('d-none');
+                    } else {
+                        $('#errorAlert')
+                            .text(error.message)
+                            .removeClass('d-none');
+                    }
                 });
         }
 

@@ -281,9 +281,9 @@
             <!-- 導航內容 -->
             <div class="collapse navbar-collapse" id="navbarContent">
                 <!-- 搜尋欄 -->
-                <form class="d-flex mx-auto" onsubmit="return false;">
+                <!-- <form class="d-flex mx-auto" onsubmit="return false;">
                     <input class="form-control search-input" type="search" placeholder="Search books" id="searchInput">
-                </form>
+                </form> -->
 
                 <!-- 右側選單 -->
                 <ul class="navbar-nav ms-auto">
@@ -297,7 +297,7 @@
                     <li class="nav-item dropdown">
                         <!-- 登入連結 (未登入時顯示) -->
                         <a class="nav-link" href="./login.html" id="loginLink">
-                            Login
+                            登入
                         </a>
                         <!-- 用戶選單 (登入後顯示) -->
                         <a class="nav-link dropdown-toggle d-none" href="#" id="userMenu" role="button"
@@ -308,7 +308,7 @@
                             <li><a class="dropdown-item" href="./member-profile.html">會員中心</a></li>
                             <li><a class="dropdown-item" href="./member-orders.html">我的訂單</a></li>
                             <li><a class="dropdown-item" href="./chat-room.html">聊天室</a></li>
-                            <li><a class="dropdown-item" href="#" id="logoutBtn">Logout</a></li>
+                            <li><a class="dropdown-item" href="#" id="logoutBtn">登出</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -320,9 +320,9 @@
         <div class="cart-container">
             <!-- 購物車標題 -->
             <div class="shopping-cart-header d-flex justify-content-between align-items-center">
-                <div>Shopping cart</div>
+                <div>購物車</div>
                 <div id="clearCartBtn" class="d-none">
-                    <button class="btn btn-sm btn-light">Clear cart</button>
+                    <button class="btn btn-sm btn-light">清空購物車</button>
                 </div>
             </div>
 
@@ -522,12 +522,12 @@
             function showEmptyCart() {
                 $('#cartItems').html(`
                     <div class="shopping-cart-empty-text">
-                        Your shopping cart is empty.
+                        你的購物車是空的。
                     </div>
                 `);
                 $('#cartFooter').html(`
                     <a href="./index.html" class="continue-shopping-btn">
-                        Continue shopping
+                        繼續購物
                     </a>
                 `);
                 $('.cart-badge').text('0');
