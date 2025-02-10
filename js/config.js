@@ -7,7 +7,7 @@ function getBaseUrl() {
             return 'http://localhost:8080';
         case '35.234.25.82':
             return 'http://35.234.25.82:8080';
-        case '35.234.25.82':
+        case '122.116.86.219':
             return 'http://122.116.86.219:8080';
         case 'fbsep-bookcart.ddns.net':
             return 'http://fbsep-bookcart.ddns.net:8080';
