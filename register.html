@@ -301,7 +301,7 @@
                         <button type="button" class="password-toggle" data-target="memberPassword">
                             <i class="bi bi-eye"></i>
                         </button>
-                        <small class="error-text text-danger d-none">密碼至少需要8個字符，包含至少1個大寫字母、1個小寫字母和1個數字</small>
+                        <small class="error-text text-danger d-none">密碼必須至少8個字符，需包含大寫字母、小寫字母和數字（可選擇使用特殊符號）</small>
                     </div>
 
                     <!-- 確認密碼欄位 -->
@@ -534,7 +534,7 @@
             const value = passwordInput.val();
 
             // 密碼驗證規則：密碼必須包含至少8個字符，包含大小寫字母和數字
-            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[\x21-\x7E]{8,}$/;
 
             if (!value) {
                 passwordInput.addClass('is-invalid');
@@ -544,7 +544,7 @@
 
             if (!passwordRegex.test(value)) {
                 passwordInput.addClass('is-invalid');
-                errorText.text('密碼必須包含至少8個字符，包含大小寫字母和數字').removeClass('d-none');
+                errorText.text('密碼必須至少8個字符，需包含大寫字母、小寫字母和數字（可選擇使用特殊符號）').removeClass('d-none');
                 return false;
             }
 
